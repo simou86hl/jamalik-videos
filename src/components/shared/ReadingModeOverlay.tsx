@@ -56,15 +56,20 @@ export function ReadingModeOverlay({ children }: ReadingModeOverlayProps) {
     setCustomFontSize(next);
   };
 
+  // When not in reading mode, render children normally
+  if (!isReadingMode) {
+    return <>{children}</>;
+  }
+
   return (
     <AnimatePresence>
-      {isReadingMode && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[60] flex flex-col"
+      <motion.div
+        key="reading-mode"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-[60] flex flex-col"
           style={{
             backgroundColor: isDarkReading ? '#1a1a2e' : '#fdf8f4',
             color: isDarkReading ? '#e8eaf6' : '#1a1a2e',
@@ -208,7 +213,6 @@ export function ReadingModeOverlay({ children }: ReadingModeOverlayProps) {
             </span>
           </div>
         </motion.div>
-      )}
     </AnimatePresence>
   );
 }
