@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 upload/
+
+# Internal skills (dev-only, not part of app)
+skills/
