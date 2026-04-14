@@ -1,11 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Heart, Share2, Clock, Eye, User, Calendar } from 'lucide-react';
+import { ArrowRight, Heart, Clock, Eye, User, Calendar, BookOpen } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { CATEGORIES } from '@/lib/constants';
 import { ARTICLES } from '@/data/seedData';
 import { ArticleCard } from '@/components/cards/ArticleCard';
+import { CommentSection } from '@/components/shared/CommentSection';
+import { RatingStars } from '@/components/shared/RatingStars';
+import { ShareButtons } from '@/components/shared/ShareButtons';
+import { FontSizeControl } from '@/components/shared/FontSizeControl';
+import { PrintButton } from '@/components/shared/PrintButton';
+import { ReadingModeOverlay } from '@/components/shared/ReadingModeOverlay';
+import { AdBanner } from '@/components/shared/AdBanner';
+import { PersonalizedSuggestions } from '@/components/shared/PersonalizedSuggestions';
 import { formatDate, getReadingTime, cn } from '@/lib/utils';
 
 export function ArticlePage() {
@@ -111,7 +119,7 @@ export function ArticlePage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          className="flex items-center gap-3 mb-10"
+          className="flex flex-wrap items-center gap-3 mb-6"
         >
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -126,36 +134,58 @@ export function ArticlePage() {
             <Heart className={cn('h-4 w-4', saved && 'fill-white')} />
             {saved ? 'محفوظ' : 'حفظ'}
           </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium glass-subtle text-text-subtle hover:text-primary transition-all duration-300 cursor-pointer"
-          >
-            <Share2 className="h-4 w-4" /> مشاركة
-          </motion.button>
-          <span className="flex items-center gap-1.5 text-xs text-text-subtle mr-auto glass-subtle px-3 py-1.5 rounded-full">
+
+          {/* Share Buttons */}
+          <ShareButtons title={article.title} />
+
+          <span className="flex items-center gap-1.5 text-xs text-text-subtle glass-subtle px-3 py-1.5 rounded-full">
             <Heart className="h-3.5 w-3.5 text-primary" /> {article.stats.likes}
           </span>
         </motion.div>
 
-        {/* Content Area with enhanced typography */}
+        {/* Font Size Control, Print Button, and Reading Mode - Toolbar */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="prose prose-lg max-w-none text-text-main leading-[2] text-[15px]
-            [&_h3]:font-heading [&_h3]:font-bold [&_h3]:text-lg [&_h3]:text-gradient [&_h3]:mt-10 [&_h3]:mb-4
-            [&_p]:mb-5 [&_p]:text-text-main/90 [&_p]:leading-[2]
-            [&_h2]:font-heading [&_h2]:font-bold [&_h2]:text-xl [&_h2]:text-gradient [&_h2]:mt-10 [&_h2]:mb-4
-            [&_blockquote]:gradient-border [&_blockquote]:rounded-xl [&_blockquote]:bg-accent/5 [&_blockquote]:p-5
-            [&_blockquote]:my-6 [&_blockquote]:text-text-secondary [&_blockquote]:italic [&_blockquote]:text-sm]
-            [&_blockquote]:border-r-4 [&_blockquote]:border-r-accent
-            [&_ul]:list-disc [&_ul]:pr-6 [&_ul]:space-y-2
-            [&_ol]:list-decimal [&_ol]:pr-6 [&_ol]:space-y-2
-            [&_strong]:text-text-main [&_strong]:font-bold
-            [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2
-            [&_img]:rounded-2xl [&_img]:my-6"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.32 }}
+          className="flex items-center gap-3 mb-10 glass-subtle rounded-xl px-4 py-2.5 w-fit"
+        >
+          <FontSizeControl />
+          <div className="w-px h-5 bg-border/50" />
+          <PrintButton label="طباعة" />
+          <div className="w-px h-5 bg-border/50" />
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium glass-subtle text-text-subtle hover:text-primary transition-all duration-300 cursor-pointer"
+            type="button"
+            aria-label="وضع القراءة"
+          >
+            <BookOpen className="h-4 w-4" />
+            وضع القراءة
+          </motion.button>
+        </motion.div>
+
+        {/* Content Area - wrapped in ReadingModeOverlay */}
+        <ReadingModeOverlay>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="prose prose-lg max-w-none text-text-main leading-[2] text-[15px]
+              [&_h3]:font-heading [&_h3]:font-bold [&_h3]:text-lg [&_h3]:text-gradient [&_h3]:mt-10 [&_h3]:mb-4
+              [&_p]:mb-5 [&_p]:text-text-main/90 [&_p]:leading-[2]
+              [&_h2]:font-heading [&_h2]:font-bold [&_h2]:text-xl [&_h2]:text-gradient [&_h2]:mt-10 [&_h2]:mb-4
+              [&_blockquote]:gradient-border [&_blockquote]:rounded-xl [&_blockquote]:bg-accent/5 [&_blockquote]:p-5
+              [&_blockquote]:my-6 [&_blockquote]:text-text-secondary [&_blockquote]:italic [&_blockquote]:text-sm]
+              [&_blockquote]:border-r-4 [&_blockquote]:border-r-accent
+              [&_ul]:list-disc [&_ul]:pr-6 [&_ul]:space-y-2
+              [&_ol]:list-decimal [&_ol]:pr-6 [&_ol]:space-y-2
+              [&_strong]:text-text-main [&_strong]:font-bold
+              [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2
+              [&_img]:rounded-2xl [&_img]:my-6"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
+        </ReadingModeOverlay>
 
         {/* Tags with gradient background */}
         <div className="flex flex-wrap gap-2 mt-10 pt-8 border-t border-border">
@@ -171,6 +201,30 @@ export function ArticlePage() {
             </motion.span>
           ))}
         </div>
+
+        {/* Rating Stars */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mt-8 glass-subtle rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-text-main">قيّمي هذا المقال:</span>
+            <RatingStars itemId={article.id} size="md" />
+          </div>
+        </motion.div>
+
+        {/* Comment Section */}
+        <CommentSection itemId={article.id} itemType="article" />
+
+        {/* Ad Banner */}
+        <div className="mt-10">
+          <AdBanner />
+        </div>
+
+        {/* Personalized Suggestions */}
+        <PersonalizedSuggestions />
 
         {/* Related Articles Section */}
         {related.length > 0 && (

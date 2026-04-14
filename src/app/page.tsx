@@ -16,6 +16,15 @@ import { RecipePage } from '@/components/pages/RecipePage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { LoginPage } from '@/components/pages/LoginPage';
 import { ProfilePage } from '@/components/pages/ProfilePage';
+import { AboutPage } from '@/components/pages/AboutPage';
+import { ContactPage } from '@/components/pages/ContactPage';
+import { PrivacyPage } from '@/components/pages/PrivacyPage';
+import { QuizPage } from '@/components/pages/QuizPage';
+import { ComparePage } from '@/components/pages/ComparePage';
+import { ReferralPage } from '@/components/pages/ReferralPage';
+import { NotificationPage } from '@/components/pages/NotificationPage';
+import { DailyCalendarPage } from '@/components/pages/DailyCalendarPage';
+import { AdminPage } from '@/components/pages/AdminPage';
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, scale: 0.995 },
@@ -132,6 +141,114 @@ export default function Home() {
               exit="exit"
             >
               <ProfilePage />
+            </motion.div>
+          )}
+
+          {currentPage === 'about' && (
+            <motion.div
+              key="about"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <AboutPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'contact' && (
+            <motion.div
+              key="contact"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <ContactPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'privacy' && (
+            <motion.div
+              key="privacy"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <PrivacyPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'quiz' && (
+            <motion.div
+              key="quiz"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <QuizPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'compare' && (
+            <motion.div
+              key="compare"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <ComparePage />
+            </motion.div>
+          )}
+
+          {currentPage === 'referral' && (
+            <motion.div
+              key="referral"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <ReferralPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'notifications' && (
+            <motion.div
+              key="notifications"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <NotificationPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'daily-calendar' && (
+            <motion.div
+              key="daily-calendar"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <DailyCalendarPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'admin' && (
+            <motion.div
+              key="admin"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <AdminPage />
             </motion.div>
           )}
         </AnimatePresence>

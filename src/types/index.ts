@@ -4,16 +4,11 @@
 
 /** Navigation pages in the SPA */
 export type SitePage =
-  | 'home'
-  | 'category'
-  | 'article'
-  | 'recipe'
-  | 'search'
-  | 'favorites'
-  | 'profile'
-  | 'login'
-  | 'register'
-  | 'admin';
+  | 'home' | 'category' | 'article' | 'recipe' | 'search'
+  | 'favorites' | 'profile' | 'login' | 'register' | 'admin'
+  | 'about' | 'contact' | 'privacy' | 'quiz' | 'compare'
+  | 'newsletter' | 'referral' | 'reading-mode' | 'skin-quiz'
+  | 'notifications' | 'daily-calendar';
 
 /** Main content categories */
 export type CategorySlug =
@@ -136,14 +131,13 @@ export interface Recipe {
 /** Comment on article or recipe */
 export interface Comment {
   id: string;
-  userId: string;
   userName: string;
-  userImage: string;
   content: string;
   itemId: string;
   itemType: FavoriteType;
   likes: number;
   parentId: string | null;
+  replies: Comment[];
   createdAt: string;
 }
 
@@ -214,4 +208,95 @@ export interface NavLink {
   label: string;
   slug: CategorySlug | 'home' | 'search' | 'favorites';
   icon?: string;
+}
+
+// ============================================================
+// New Feature Types (Phase 2)
+// ============================================================
+
+// Quiz
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: { text: string; score: number }[];
+}
+
+export interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  category: CategorySlug;
+  questions: QuizQuestion[];
+  results: { minScore: number; maxScore: number; title: string; description: string; image: string }[];
+}
+
+// Notification
+export interface Notification {
+  id: string;
+  title: string;
+  content: string;
+  image?: string;
+  read: boolean;
+  category: CategorySlug | 'system';
+  createdAt: string;
+}
+
+// Product comparison
+export interface ProductCompare {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  rating: number;
+  image: string;
+  pros: string[];
+  cons: string[];
+  category: CategorySlug;
+}
+
+// Recipe timer
+export interface TimerState {
+  totalSeconds: number;
+  remainingSeconds: number;
+  isRunning: boolean;
+  label: string;
+}
+
+// Referral
+export interface ReferralCode {
+  code: string;
+  uses: number;
+  reward: string;
+}
+
+// Contact form
+export interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+// Daily calendar tip
+export interface CalendarTip {
+  id: string;
+  date: string; // YYYY-MM-DD
+  content: string;
+  category: CategorySlug;
+  icon: string;
+}
+
+// Newsletter subscriber
+export interface NewsletterSubscriber {
+  email: string;
+  subscribedAt: string;
+  interests: CategorySlug[];
+}
+
+// User rating
+export interface UserRating {
+  itemId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }

@@ -2,7 +2,7 @@
 
 import { SITE_NAME, FOOTER_LINKS, SOCIAL_LINKS } from '@/lib/constants';
 import { useStore } from '@/store/useStore';
-import { Heart, Sparkles, Camera, MessageCircle, Users, Tv, Send, Film } from 'lucide-react';
+import { Heart, Sparkles, Camera, MessageCircle, Users, Tv, Send, Film, Brain, GitCompareArrows, Gift, Bell, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { CategorySlug } from '@/types';
@@ -16,6 +16,13 @@ const SOCIAL_ICONS: Record<string, React.ElementType> = {
   snapchat: Send,
 };
 
+const MORE_LINKS = [
+  { label: 'الاختبارات', page: 'quiz' as const, icon: Brain },
+  { label: 'مقارنة المنتجات', page: 'compare' as const, icon: GitCompareArrows },
+  { label: 'الدعوة والأصدقاء', page: 'referral' as const, icon: Gift },
+  { label: 'الإشعارات', page: 'notifications' as const, icon: Bell },
+];
+
 export function Footer() {
   const { navigateTo, selectCategory } = useStore();
 
@@ -26,7 +33,7 @@ export function Footer() {
       <div className="absolute bottom-0 right-0 w-48 h-48 bg-secondary/5 rounded-full blur-3xl translate-x-1/4 translate-y-1/4" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
@@ -104,6 +111,45 @@ export function Footer() {
                   </span>
                 </motion.li>
               ))}
+            </ul>
+          </div>
+
+          {/* More Links */}
+          <div>
+            <h3 className="font-heading font-bold text-gradient text-lg mb-4">المزيد</h3>
+            <ul className="space-y-2.5">
+              {MORE_LINKS.map((link, i) => {
+                const Icon = link.icon;
+                return (
+                  <motion.li
+                    key={link.page}
+                    initial={{ opacity: 0, x: 10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    <button
+                      onClick={() => navigateTo(link.page)}
+                      className="text-sm text-text-subtle hover:text-primary transition-colors cursor-pointer hover:translate-x-1 inline-flex items-center gap-2 duration-200"
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {link.label}
+                    </button>
+                  </motion.li>
+                );
+              })}
+              {/* Language Switcher placeholder */}
+              <motion.li
+                initial={{ opacity: 0, x: 10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: MORE_LINKS.length * 0.05 }}
+              >
+                <span className="text-sm text-text-subtle hover:text-primary transition-colors cursor-pointer hover:translate-x-1 inline-flex items-center gap-2 duration-200">
+                  <Globe className="h-3.5 w-3.5" />
+                  اللغة العربية
+                </span>
+              </motion.li>
             </ul>
           </div>
 

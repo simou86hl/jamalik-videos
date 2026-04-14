@@ -1,21 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Menu, X, Heart, User, Home, Sparkles } from 'lucide-react';
+import { Search, Menu, X, Heart, User, Home, Sparkles, Bell, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { NAV_LINKS, SITE_NAME } from '@/lib/constants';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { VoiceSearch } from '@/components/shared/VoiceSearch';
+import { CartDrawer } from '@/components/shared/CartDrawer';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const {
     currentPage,
     navigateTo,
     isMobileMenuOpen,
     toggleMobileMenu,
     toggleSearch,
+    notifications,
   } = useStore();
 
   useEffect(() => {
@@ -27,6 +32,8 @@ export function Navbar() {
   const isActive = (slug: string) =>
     currentPage === slug ||
     (slug !== 'home' && slug !== 'search' && slug !== 'favorites' && currentPage === 'category' && useStore.getState().selectedCategory === slug);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <>
@@ -110,6 +117,34 @@ export function Navbar() {
               >
                 <Heart className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
               </button>
+
+              {/* Bell - Notifications */}
+              <button
+                onClick={() => navigateTo('notifications')}
+                className="w-9 h-9 rounded-full flex items-center justify-center glass-subtle transition-all duration-300 cursor-pointer hover:shadow-[var(--shadow-glow)] hover:scale-105 relative group"
+                aria-label="الإشعارات"
+              >
+                <Bell className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -left-0.5 w-4 h-4 bg-gradient-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Shopping Bag - Cart */}
+              <button
+                onClick={() => setCartOpen(true)}
+                className="w-9 h-9 rounded-full flex items-center justify-center glass-subtle transition-all duration-300 cursor-pointer hover:shadow-[var(--shadow-glow)] hover:scale-105 relative group"
+                aria-label="سلة التسوق"
+              >
+                <ShoppingBag className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
+              </button>
+
+              {/* Language Switcher (desktop only) */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
 
               <button
                 onClick={() => navigateTo('login')}
@@ -216,6 +251,20 @@ export function Navbar() {
                 {/* User Actions */}
                 <div className="border-t border-border/50 pt-4 space-y-2">
                   <button
+                    onClick={() => { navigateTo('notifications'); toggleMobileMenu(); }}
+                    className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-text-subtle hover:text-primary hover:bg-primary/5 transition-all w-full cursor-pointer"
+                  >
+                    <span className="flex items-center gap-3">
+                      <Bell className="h-4 w-4" />
+                      الإشعارات
+                    </span>
+                    {unreadCount > 0 && (
+                      <span className="bg-gradient-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
                     onClick={() => { navigateTo('login'); toggleMobileMenu(); }}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-text-subtle hover:text-primary hover:bg-primary/5 transition-all w-full cursor-pointer"
                   >
@@ -296,6 +345,12 @@ export function Navbar() {
           </button>
         </div>
       </nav>
+
+      {/* Voice Search - Floating */}
+      <VoiceSearch />
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

@@ -3,10 +3,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, Heart, Share2, Clock, Flame, Users, Star,
+  ArrowRight, Heart, Clock, Flame, Users, Star,
   CheckCircle2, AlertTriangle, Lightbulb
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { CommentSection } from '@/components/shared/CommentSection';
+import { RatingStars } from '@/components/shared/RatingStars';
+import { ShareButtons } from '@/components/shared/ShareButtons';
+import { PrintButton } from '@/components/shared/PrintButton';
+import { RecipeTimer } from '@/components/shared/RecipeTimer';
+import { AdBanner } from '@/components/shared/AdBanner';
 import { cn } from '@/lib/utils';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -77,6 +83,9 @@ export function RecipePage() {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
       className="py-6"
     >
+      {/* Recipe Timer - floating */}
+      <RecipeTimer prepTime={recipe.prepTime} cookTime={recipe.cookTime} />
+
       {/* Back Button */}
       <motion.button
         whileHover={{ x: 4 }}
@@ -176,7 +185,7 @@ export function RecipePage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.25 }}
-          className="flex items-center gap-3 mb-10"
+          className="flex flex-wrap items-center gap-3 mb-10"
         >
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -191,12 +200,28 @@ export function RecipePage() {
             <Heart className={cn('h-4 w-4', saved && 'fill-white')} />
             {saved ? 'محفوظ' : 'حفظ'}
           </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium glass-subtle text-text-subtle hover:text-primary transition-all duration-300 cursor-pointer"
-          >
-            <Share2 className="h-4 w-4" /> مشاركة
-          </motion.button>
+
+          {/* Share Buttons */}
+          <ShareButtons title={recipe.title} />
+
+          {/* Print Button */}
+          <PrintButton label="طباعة" />
+        </motion.div>
+
+        {/* Rating Stars below info cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.27 }}
+          className="mb-10 glass-subtle rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-text-main">قيّمي هذه الوصفة:</span>
+            <RatingStars itemId={recipe.id} initialRating={recipe.rating.average} size="md" />
+            <span className="text-xs text-text-subtle">
+              ({recipe.rating.count} تقييم)
+            </span>
+          </div>
         </motion.div>
 
         {/* Ingredients - Glass-strong container */}
@@ -252,6 +277,11 @@ export function RecipePage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Ad Banner between ingredients and steps */}
+        <div className="mb-10">
+          <AdBanner />
+        </div>
 
         {/* Steps - Numbered with gradient circles */}
         <motion.div
@@ -347,6 +377,9 @@ export function RecipePage() {
             </div>
           </motion.div>
         )}
+
+        {/* Comment Section below tips */}
+        <CommentSection itemId={recipe.id} itemType="recipe" />
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 pt-8 border-t border-border">
