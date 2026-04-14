@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Heart, ArrowRight } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ARTICLES, RECIPES } from '@/data/seedData';
+import type { Article, Recipe } from '@/types';
 import { ArticleCard } from '@/components/cards/ArticleCard';
 import { RecipeCard } from '@/components/cards/RecipeCard';
 
@@ -15,12 +16,12 @@ export function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'articles' | 'recipes'>('all');
 
   const favoriteArticles = useMemo(
-    () => favorites.filter((f) => f.type === 'article').map((f) => ARTICLES.find((a) => a.id === f.itemId)).filter(Boolean),
+    () => favorites.filter((f) => f.type === 'article').map((f) => ARTICLES.find((a) => a.id === f.itemId)).filter((a): a is Article => a !== undefined),
     [favorites]
   );
 
   const favoriteRecipes = useMemo(
-    () => favorites.filter((f) => f.type === 'recipe').map((f) => RECIPES.find((r) => r.id === f.itemId)).filter(Boolean),
+    () => favorites.filter((f) => f.type === 'recipe').map((f) => RECIPES.find((r) => r.id === f.itemId)).filter((r): r is Recipe => r !== undefined),
     [favorites]
   );
 
