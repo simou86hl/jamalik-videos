@@ -6,6 +6,7 @@ import {
   Bell, ShoppingBag, Shirt, ChefHat, Scissors,
   Dumbbell, Palette, Leaf, Brain, GitCompareArrows,
   Gift, Globe, Info, FileText, Shield, Phone, ChevronLeft,
+  Video, Play, Clock, Eye, ThumbsUp, Filter,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
@@ -373,17 +374,17 @@ export function Navbar() {
       </AnimatePresence>
 
       {/* ═══ Mobile Bottom Nav ═══ */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 glass-strong lg:hidden safe-area-bottom border-t border-border/30">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden safe-area-bottom border-t border-border/30 bg-bg/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-around h-[64px] px-2">
           {[
             { page: 'home' as SitePage, Icon: Home, label: 'الرئيسية' },
             { page: 'search' as SitePage, Icon: Search, label: 'بحث', action: toggleSearch },
-            { page: 'favorites' as SitePage, Icon: Heart, label: 'المفضلة' },
+            { page: 'videos' as SitePage, Icon: Video, label: 'فيديوهات' },
             { page: 'login' as SitePage, Icon: User, label: 'حسابي' },
           ].map((tab) => {
             const isActiveTab = tab.page === 'search'
               ? false
-              : currentPage === tab.page || (tab.page === 'login' && currentPage === 'profile');
+              : currentPage === tab.page || (tab.page === 'login' && (currentPage === 'profile' || currentPage === 'register' || currentPage === 'login'));
 
             return (
               <button

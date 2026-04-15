@@ -25,6 +25,7 @@ import { ReferralPage } from '@/components/pages/ReferralPage';
 import { NotificationPage } from '@/components/pages/NotificationPage';
 import { DailyCalendarPage } from '@/components/pages/DailyCalendarPage';
 import { AdminPage } from '@/components/pages/AdminPage';
+import { VideoPage } from '@/components/pages/VideoPage';
 import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 
 const pageVariants = {
@@ -250,6 +251,18 @@ export default function Home() {
               exit="exit"
             >
               <AdminPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'videos' && (
+            <motion.div
+              key="videos"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <VideoPage />
             </motion.div>
           )}
         </AnimatePresence>

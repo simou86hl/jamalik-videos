@@ -8,7 +8,33 @@ export type SitePage =
   | 'favorites' | 'profile' | 'login' | 'register' | 'admin'
   | 'about' | 'contact' | 'privacy' | 'quiz' | 'compare'
   | 'newsletter' | 'referral' | 'reading-mode' | 'skin-quiz'
-  | 'notifications' | 'daily-calendar';
+  | 'notifications' | 'daily-calendar' | 'videos';
+
+/** Video category slug */
+export type VideoCategorySlug =
+  | 'skincare'
+  | 'beauty'
+  | 'cooking'
+  | 'fitness'
+  | 'fashion'
+  | 'haircare'
+  | 'health'
+  | 'natural';
+
+/** Video item */
+export interface VideoItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  duration: string;
+  videoUrl: string;
+  category: VideoCategorySlug;
+  views: number;
+  likes: number;
+  isFeatured: boolean;
+  createdAt: string;
+}
 
 /** Main content categories */
 export type CategorySlug =
