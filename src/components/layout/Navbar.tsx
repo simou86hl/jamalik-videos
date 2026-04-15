@@ -421,12 +421,12 @@ export function Navbar() {
                     'h-[20px] w-[20px] relative z-10 transition-all duration-300',
                     isActiveTab
                       ? 'text-primary drop-shadow-[0_0_6px_rgba(194,24,91,0.5)]'
-                      : 'text-text-subtle'
+                      : 'text-text-main'
                   )}
                 />
                 <span className={cn(
                   'text-[10px] relative z-10 transition-colors',
-                  isActiveTab ? 'font-bold text-primary' : 'font-medium text-text-subtle'
+                  isActiveTab ? 'font-bold text-primary' : 'font-semibold text-text-main'
                 )}>
                   {tab.label}
                 </span>
