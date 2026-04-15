@@ -268,7 +268,7 @@ export function Navbar() {
                 <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 space-y-4">
                   {/* ── الأقسام (Category Chips Grid) ── */}
                   <div>
-                    <h4 className="text-[11px] font-bold text-text-subtle uppercase tracking-wider mb-2 px-1">
+                    <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
                       الأقسام
                     </h4>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -285,7 +285,7 @@ export function Navbar() {
                               'flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] font-medium transition-all duration-200 cursor-pointer',
                               isActive(cat.slug)
                                 ? 'bg-primary/10 text-primary border border-primary/20'
-                                : 'glass-subtle text-text-subtle hover:text-primary hover:bg-primary/5'
+                                : 'glass-subtle text-text-main hover:text-primary hover:bg-primary/5'
                             )}
                           >
                             {Icon && <Icon className="h-3.5 w-3.5 flex-shrink-0" />}
@@ -298,7 +298,7 @@ export function Navbar() {
 
                   {/* ── روابط مفيدة ── */}
                   <div>
-                    <h4 className="text-[11px] font-bold text-text-subtle uppercase tracking-wider mb-2 px-1">
+                    <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
                       روابط مفيدة
                     </h4>
                     <div className="space-y-0.5">
@@ -311,7 +311,7 @@ export function Navbar() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.15 + i * 0.03 }}
                             onClick={() => handleMobileNav(link.page)}
-                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-subtle hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group"
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-main hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group font-medium"
                           >
                             <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                               <Icon className="h-3 w-3" />
@@ -326,7 +326,7 @@ export function Navbar() {
 
                   {/* ── المزيد ── */}
                   <div>
-                    <h4 className="text-[11px] font-bold text-text-subtle uppercase tracking-wider mb-2 px-1">
+                    <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
                       المزيد
                     </h4>
                     <div className="space-y-0.5">
@@ -339,7 +339,7 @@ export function Navbar() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 + i * 0.03 }}
                             onClick={() => handleMobileNav(item.page)}
-                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-subtle hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group"
+                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-main hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group font-medium"
                           >
                             <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                               <Icon className="h-3 w-3" />
@@ -361,7 +361,7 @@ export function Navbar() {
                         initial={{ opacity: 0, x: 12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + MORE_MENU_ITEMS.length * 0.03 }}
-                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-subtle hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group"
+                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-main hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group font-medium"
                       >
                         <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                           <Globe className="h-3 w-3" />
@@ -377,7 +377,7 @@ export function Navbar() {
                 <div className="border-t border-border/30 px-4 py-3 flex items-center gap-2">
                   <button
                     onClick={() => handleMobileNav('login')}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium glass-subtle text-text-subtle hover:text-primary hover:bg-primary/5 transition-all cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium glass-subtle text-text-main hover:text-primary hover:bg-primary/5 transition-all cursor-pointer"
                   >
                     <User className="h-3.5 w-3.5" />
                     تسجيل الدخول
