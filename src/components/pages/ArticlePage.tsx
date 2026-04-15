@@ -12,6 +12,7 @@ import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FontSizeControl } from '@/components/shared/FontSizeControl';
 import { PrintButton } from '@/components/shared/PrintButton';
 import { ReadingModeOverlay } from '@/components/shared/ReadingModeOverlay';
+import { SkeletonDetail } from '@/components/shared/SkeletonCard';
 import { AdBanner } from '@/components/shared/AdBanner';
 import { PersonalizedSuggestions } from '@/components/shared/PersonalizedSuggestions';
 import { formatDate, getReadingTime, cn } from '@/lib/utils';
@@ -27,10 +28,13 @@ export function ArticlePage() {
 
   if (!selectedArticle) {
     return (
-      <div className="py-20 text-center">
-        <p className="text-text-subtle">المقال غير موجود</p>
-        <button onClick={goBack} className="mt-4 text-primary text-sm cursor-pointer">العودة</button>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="py-6"
+      >
+        <SkeletonDetail />
+      </motion.div>
     );
   }
 

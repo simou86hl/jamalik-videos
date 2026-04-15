@@ -25,6 +25,7 @@ import { ReferralPage } from '@/components/pages/ReferralPage';
 import { NotificationPage } from '@/components/pages/NotificationPage';
 import { DailyCalendarPage } from '@/components/pages/DailyCalendarPage';
 import { AdminPage } from '@/components/pages/AdminPage';
+import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, scale: 0.995 },
@@ -256,6 +257,7 @@ export default function Home() {
 
       <SearchModal />
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Heart, Clock, Flame, Users, Star,
-  CheckCircle2, AlertTriangle, Lightbulb
+  CheckCircle2, AlertTriangle, Lightbulb, BookOpen
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { CommentSection } from '@/components/shared/CommentSection';
@@ -13,6 +13,9 @@ import { ShareButtons } from '@/components/shared/ShareButtons';
 import { PrintButton } from '@/components/shared/PrintButton';
 import { RecipeTimer } from '@/components/shared/RecipeTimer';
 import { AdBanner } from '@/components/shared/AdBanner';
+import { FontSizeControl } from '@/components/shared/FontSizeControl';
+import { ReadingModeOverlay } from '@/components/shared/ReadingModeOverlay';
+import { SkeletonRecipe } from '@/components/shared/SkeletonCard';
 import { cn } from '@/lib/utils';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -48,15 +51,18 @@ const staggerItem = {
 };
 
 export function RecipePage() {
-  const { selectedRecipe, goBack, toggleFavorite, isFavorite } = useStore();
+  const { selectedRecipe, goBack, toggleFavorite, isFavorite, toggleReadingMode } = useStore();
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
 
   if (!selectedRecipe) {
     return (
-      <div className="py-20 text-center">
-        <p className="text-text-subtle">الوصفة غير موجودة</p>
-        <button onClick={goBack} className="mt-4 text-primary text-sm cursor-pointer">العودة</button>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="py-6"
+      >
+        <SkeletonRecipe />
+      </motion.div>
     );
   }
 
@@ -208,6 +214,29 @@ export function RecipePage() {
           <PrintButton label="طباعة" />
         </motion.div>
 
+        {/* Font Size Control, Print Button, and Reading Mode - Toolbar */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.26 }}
+          className="flex items-center gap-3 mb-6 glass-subtle rounded-xl px-4 py-2.5 w-fit"
+        >
+          <FontSizeControl />
+          <div className="w-px h-5 bg-border/50" />
+          <PrintButton label="طباعة" />
+          <div className="w-px h-5 bg-border/50" />
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleReadingMode}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium glass-subtle text-text-subtle hover:text-primary transition-all duration-300 cursor-pointer"
+            type="button"
+            aria-label="وضع القراءة"
+          >
+            <BookOpen className="h-4 w-4" />
+            وضع القراءة
+          </motion.button>
+        </motion.div>
+
         {/* Rating Stars below info cards */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -224,6 +253,8 @@ export function RecipePage() {
           </div>
         </motion.div>
 
+        {/* Ingredients, Steps, Tips & Warnings - wrapped in ReadingModeOverlay */}
+        <ReadingModeOverlay>
         {/* Ingredients - Glass-strong container */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -277,11 +308,6 @@ export function RecipePage() {
             ))}
           </div>
         </motion.div>
-
-        {/* Ad Banner between ingredients and steps */}
-        <div className="mb-10">
-          <AdBanner />
-        </div>
 
         {/* Steps - Numbered with gradient circles */}
         <motion.div
@@ -377,6 +403,7 @@ export function RecipePage() {
             </div>
           </motion.div>
         )}
+        </ReadingModeOverlay>
 
         {/* Comment Section below tips */}
         <CommentSection itemId={recipe.id} itemType="recipe" />

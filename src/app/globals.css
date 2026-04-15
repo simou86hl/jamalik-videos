@@ -856,7 +856,7 @@ h1, h2, h3, h4, h5, h6 {
   .glass::before, [class*="animate-"] {
     display: none !important;
   }
-  
+
   /* Clean print layout */
   body {
     background: white !important;
@@ -864,9 +864,9 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12pt;
     line-height: 1.6;
   }
-  
+
   body::before { display: none !important; }
-  
+
   /* Print-friendly cards */
   [class*="glass"] {
     background: white !important;
@@ -874,18 +874,36 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid #ddd !important;
     box-shadow: none !important;
   }
-  
+
   /* Show URLs for links */
   a[href]::after {
     content: " (" attr(href) ")";
     font-size: 10pt;
     color: #666;
   }
-  
+
   /* Page breaks */
   .page-break { page-break-before: always; }
-  
+
   /* Recipe specific */
   .print-recipe-title { font-size: 18pt; font-weight: bold; margin-bottom: 8pt; }
   .print-recipe-meta { margin-bottom: 12pt; }
+}
+
+/* ============================================================
+   Scroll Reveal Animation
+   ============================================================ */
+@keyframes scrollReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-scroll-reveal {
+  animation: scrollReveal 0.6s ease-out both;
 }
