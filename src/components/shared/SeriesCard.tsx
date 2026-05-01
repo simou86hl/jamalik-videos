@@ -66,16 +66,16 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
         </div>
 
         {/* Title - BELOW image, single line */}
-        <h3 className="text-[8px] font-medium text-text-main leading-none truncate text-right block w-full">
+        <h3 className="text-[7px] font-medium text-text-main leading-none truncate text-right block w-full">
           {series.title}
         </h3>
 
         {/* Rating + Year */}
-        <div className="flex items-center gap-1 mt-0.5">
-          <Star className="h-2.5 w-2.5 text-accent fill-accent" />
-          <span className="text-[10px] font-bold text-text-subtle">{series.rating.average}</span>
-          <span className="text-[9px] text-text-muted">·</span>
-          <span className="text-[10px] text-text-subtle">{series.year}</span>
+        <div className="flex items-center gap-0.5 mt-0.5">
+          <Star className="h-2 w-2 text-accent fill-accent" />
+          <span className="text-[7px] text-text-subtle">{series.rating.average}</span>
+          <span className="text-[6px] text-text-muted">·</span>
+          <span className="text-[7px] text-text-subtle">{series.year}</span>
         </div>
       </motion.button>
     );
