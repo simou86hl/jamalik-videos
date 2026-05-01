@@ -130,14 +130,26 @@ export function WatchPartyPage() {
   const msgId = useRef(1);
   const timeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const [sdkError, setSdkError] = useState(false);
+
   // ── Load Dailymotion SDK ──
   useEffect(() => {
     if (typeof window !== 'undefined' && !window.DM) {
       const script = document.createElement('script');
       script.src = 'https://api.dmcdn.net/all.js';
       script.async = true;
-      script.onload = () => setSdkLoaded(true);
-      script.onerror = () => setSdkLoaded(true); // mark as loaded even on error
+      script.onload = () => {
+        if (window.DM) {
+          setSdkLoaded(true);
+        } else {
+          setSdkError(true);
+          setSdkLoaded(true);
+        }
+      };
+      script.onerror = () => {
+        setSdkError(true);
+        setSdkLoaded(true);
+      };
       document.head.appendChild(script);
     } else if (window.DM) {
       setSdkLoaded(true);
@@ -255,9 +267,22 @@ export function WatchPartyPage() {
   // ── Restore room from localStorage ──
   useEffect(() => {
     try {
+      // Clear old room data from previous broken versions
+      const roomVersion = localStorage.getItem('watchparty-version');
+      if (roomVersion !== 'sdk-v2') {
+        localStorage.removeItem('watchparty-room');
+        localStorage.setItem('watchparty-version', 'sdk-v2');
+        return;
+      }
+
       const saved = localStorage.getItem('watchparty-room');
       if (saved) {
         const parsed = JSON.parse(saved) as RoomState;
+        // Validate videoId format
+        if (parsed.videoId && !/^[a-zA-Z0-9]+$/.test(parsed.videoId)) {
+          localStorage.removeItem('watchparty-room');
+          return;
+        }
         setRoom(parsed);
         setIsAdmin(parsed.host === 'أنت');
         setPhase('room');
