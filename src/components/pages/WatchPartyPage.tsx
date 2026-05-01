@@ -131,6 +131,8 @@ export function WatchPartyPage() {
   const timeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [sdkError, setSdkError] = useState(false);
+  const [useIframe, setUseIframe] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // ── Load Dailymotion SDK ──
   useEffect(() => {
@@ -138,17 +140,29 @@ export function WatchPartyPage() {
       const script = document.createElement('script');
       script.src = 'https://api.dmcdn.net/all.js';
       script.async = true;
+      const timeout = setTimeout(() => {
+        // If SDK doesn't load in 5 seconds, fall back to iframe
+        if (!window.DM) {
+          setSdkError(true);
+          setSdkLoaded(true);
+          setUseIframe(true);
+        }
+      }, 5000);
       script.onload = () => {
+        clearTimeout(timeout);
         if (window.DM) {
           setSdkLoaded(true);
         } else {
           setSdkError(true);
           setSdkLoaded(true);
+          setUseIframe(true);
         }
       };
       script.onerror = () => {
+        clearTimeout(timeout);
         setSdkError(true);
         setSdkLoaded(true);
+        setUseIframe(true);
       };
       document.head.appendChild(script);
     } else if (window.DM) {
@@ -158,70 +172,106 @@ export function WatchPartyPage() {
 
   // ── Create/destroy player when room changes ──
   useEffect(() => {
-    if (phase !== 'room' || !room?.videoId || !playerContainerRef.current || !window.DM) return;
+    if (phase !== 'room' || !room?.videoId) return;
 
-    // Destroy previous player
+    // Reset states
+    setPlayerReady(false);
+    setCurrentTime(0);
+    setDuration(0);
+
+    // Destroy previous SDK player
     if (playerRef.current) {
       try { playerRef.current.destroy(); } catch {}
       playerRef.current = null;
     }
 
+    // If SDK failed or iframe mode, use iframe only
+    if (useIframe || sdkError) {
+      setUseIframe(true);
+      setTimeout(() => setPlayerReady(true), 1500);
+      return;
+    }
+
+    // Try SDK player
+    if (!window.DM || !playerContainerRef.current) {
+      setUseIframe(true);
+      setTimeout(() => setPlayerReady(true), 1500);
+      return;
+    }
+
     const container = playerContainerRef.current;
     container.innerHTML = '';
 
-    const player = window.DM.player(container, {
-      video: room.videoId,
-      width: '100%',
-      height: '100%',
-      params: {
-        autoplay: true,
-        mute: false,
-        quality: 720,
-        'ui-logo': false,
-        'ui-start-screen-info': false,
-      },
-    });
+    try {
+      const player = window.DM.player(container, {
+        video: room.videoId,
+        width: '100%',
+        height: '100%',
+        params: {
+          autoplay: isAdmin,
+          mute: false,
+          quality: 720,
+          'ui-logo': false,
+          'ui-start-screen-info': false,
+        },
+      });
 
-    playerRef.current = player;
+      playerRef.current = player;
 
-    const handleReady = () => {
-      setPlayerReady(true);
-      setDuration(player.getDuration() || 0);
-      if (isAdmin) {
-        try { player.play(); setIsPlaying(true); } catch {}
-      }
-    };
+      // Timeout: if player doesn't become ready in 4s, fall back to iframe
+      const readyTimeout = setTimeout(() => {
+        if (!playerReady) {
+          setUseIframe(true);
+          try { player.destroy(); } catch {}
+          playerRef.current = null;
+        }
+      }, 4000);
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      addSystemMessage('انتهت الحلقة! 🎬');
-    };
-    const handleTimeUpdate = () => {
-      try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
-    };
+      const handleReady = () => {
+        clearTimeout(readyTimeout);
+        setPlayerReady(true);
+        setDuration(player.getDuration() || 0);
+        if (isAdmin) {
+          try { player.play(); setIsPlaying(true); } catch {}
+        }
+      };
 
-    player.addEventListener('apiready', handleReady);
-    player.addEventListener('play', handlePlay);
-    player.addEventListener('pause', handlePause);
-    player.addEventListener('ended', handleEnded);
-    player.addEventListener('timeupdate', handleTimeUpdate);
+      const handlePlay = () => setIsPlaying(true);
+      const handlePause = () => setIsPlaying(false);
+      const handleEnded = () => {
+        setIsPlaying(false);
+        addSystemMessage('انتهت الحلقة! 🎬');
+      };
+      const handleTimeUpdate = () => {
+        try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
+      };
 
-    // Track time
-    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
-    timeIntervalRef.current = setInterval(() => {
-      try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
-    }, 1000);
+      player.addEventListener('apiready', handleReady);
+      player.addEventListener('play', handlePlay);
+      player.addEventListener('pause', handlePause);
+      player.addEventListener('ended', handleEnded);
+      player.addEventListener('timeupdate', handleTimeUpdate);
 
-    return () => {
-      player.removeEventListener('apiready', handleReady);
-      player.removeEventListener('play', handlePlay);
-      player.removeEventListener('pause', handlePause);
-      player.removeEventListener('ended', handleEnded);
-      player.removeEventListener('timeupdate', handleTimeUpdate);
+      // Track time
       if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
-    };
+      timeIntervalRef.current = setInterval(() => {
+        try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
+      }, 1000);
+
+      return () => {
+        clearTimeout(readyTimeout);
+        player.removeEventListener('apiready', handleReady);
+        player.removeEventListener('play', handlePlay);
+        player.removeEventListener('pause', handlePause);
+        player.removeEventListener('ended', handleEnded);
+        player.removeEventListener('timeupdate', handleTimeUpdate);
+        if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
+      };
+    } catch {
+      // SDK player creation failed, fall back to iframe
+      setUseIframe(true);
+      setTimeout(() => setPlayerReady(true), 1500);
+    }
   }, [phase, room?.videoId, sdkLoaded]);
 
   // Cleanup player on unmount
@@ -811,11 +861,23 @@ export function WatchPartyPage() {
         <div className="relative aspect-video">
           {room?.videoId ? (
             <>
-              {/* Dailymotion Player Container */}
-              <div
-                ref={playerContainerRef}
-                className="absolute inset-0 [&>div]:!w-full [&>div]:!h-full [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:rounded-none"
-              />
+              {/* iframe fallback - ALWAYS works */}
+              {useIframe && (
+                <iframe
+                  src={`https://www.dailymotion.com/embed/video/${room.videoId}?autoplay=1&quality=720`}
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="autoplay; fullscreen; encrypted-media"
+                  allowFullScreen
+                />
+              )}
+
+              {/* SDK Player Container - shown only if SDK is working */}
+              {!useIframe && (
+                <div
+                  ref={playerContainerRef}
+                  className="absolute inset-0 [&>div]:!w-full [&>div]:!h-full [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:rounded-none"
+                />
+              )}
 
               {/* Loading indicator */}
               {!playerReady && (
