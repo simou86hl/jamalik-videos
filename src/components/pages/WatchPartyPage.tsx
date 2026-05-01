@@ -365,10 +365,25 @@ export function WatchPartyPage() {
     }));
   };
 
+  const DEFAULT_VIDEO_ID = 'x9abw5k';
+
   const createRoom = () => {
     const code = generateRoomCode();
-    const videoUrl = selectedSerie?.videoUrl || null;
-    const videoId = videoUrl ? extractVideoId(videoUrl) : null;
+    let videoId: string | null = DEFAULT_VIDEO_ID; // default fallback
+    let episodeTitle: string | null = null;
+
+    if (selectedSerie) {
+      const series = ALL_SERIES.find(s => s.slug === selectedSerie.slug);
+      if (series && series.seasons[0]) {
+        const ep = series.seasons[0].episodes[selectedEpIdx];
+        if (ep) {
+          episodeTitle = ep.title;
+          const realId = ep.videoUrl ? extractVideoId(ep.videoUrl) : null;
+          videoId = realId || DEFAULT_VIDEO_ID;
+        }
+      }
+    }
+
     const newRoom: RoomState = {
       id: `room-${Date.now()}`,
       name: `غرفة ${code}`,
@@ -376,10 +391,10 @@ export function WatchPartyPage() {
       host: 'أنت',
       seriesTitle: selectedSerie?.title || null,
       seriesSlug: selectedSerie?.slug || null,
-      episodeTitle: selectedSerie ? `الحلقة ${selectedEpIdx + 1}` : null,
+      episodeTitle: selectedSerie ? episodeTitle || `الحلقة ${selectedEpIdx + 1}` : null,
       videoId,
       isLive: true,
-      isPlaying: !!videoId,
+      isPlaying: true,
       createdAt: new Date().toISOString(),
     };
     setRoom(newRoom);
@@ -494,17 +509,18 @@ export function WatchPartyPage() {
   };
 
   const changeEpisode = (epIdx: number) => {
-    if (!selectedSerie) return;
+    if (!room?.seriesSlug) return;
     setSelectedEpIdx(epIdx);
-    const series = ALL_SERIES.find(s => s.slug === selectedSerie.slug);
+    const series = ALL_SERIES.find(s => s.slug === room.seriesSlug);
     if (series && series.seasons[0]) {
       const ep = series.seasons[0].episodes[epIdx];
-      const videoId = ep.videoUrl ? extractVideoId(ep.videoUrl) : null;
+      const realId = ep?.videoUrl ? extractVideoId(ep.videoUrl) : null;
+      const videoId = realId || DEFAULT_VIDEO_ID;
       setRoom(prev => prev ? {
         ...prev,
-        episodeTitle: ep.title,
+        episodeTitle: ep?.title || `الحلقة ${epIdx + 1}`,
         videoId,
-        isPlaying: !!videoId,
+        isPlaying: true,
       } : prev);
       setPlayerReady(false);
       setIsPlaying(false);
