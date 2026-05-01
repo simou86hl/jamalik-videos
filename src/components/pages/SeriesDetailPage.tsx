@@ -30,6 +30,7 @@ export function SeriesDetailPage() {
   const [selectedSeasonIdx, setSelectedSeasonIdx] = useState(0);
   const [playingEpisode, setPlayingEpisode] = useState<Episode | null>(null);
   const episodesRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   if (!series) {
     return (
@@ -56,8 +57,8 @@ export function SeriesDetailPage() {
       lastWatched: new Date().toISOString(),
     });
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
+      playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
   };
 
   const navigateEpisode = (direction: 'prev' | 'next') => {
@@ -216,6 +217,7 @@ export function SeriesDetailPage() {
           </motion.div>
 
           {/* ═══ Video Player ═══ */}
+          <div ref={playerRef} />          
           <AnimatePresence>
             {playingEpisode && (
               <motion.div
