@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Heart, Share2, Play, Clock, Calendar,
   Star, ChevronLeft, ChevronRight, Film, Users, Globe,
-  MapPin, Mic2, X,
+  MapPin, Mic2, X, PictureInPicture2,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ALL_SERIES } from '@/data/seriesData';
@@ -248,12 +248,30 @@ export function SeriesDetailPage() {
                       </h3>
                       <p className="text-xs text-text-subtle">{playingEpisode.description}</p>
                     </div>
-                    <button
-                      onClick={() => setPlayingEpisode(null)}
-                      className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer"
-                    >
-                      <X className="h-4 w-4 text-text-subtle" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          if (document.pictureInPictureEnabled) {
+                            const video = document.createElement('video');
+                            video.src = playingEpisode.videoUrl;
+                            video.muted = true;
+                            video.play().then(() => {
+                              (video as HTMLVideoElement & { requestPictureInPicture?: () => Promise<void> }).requestPictureInPicture?.();
+                            }).catch(() => {});
+                          }
+                        }}
+                        title="صورة داخل صورة"
+                        className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors"
+                      >
+                        <PictureInPicture2 className="h-4 w-4 text-text-subtle" />
+                      </button>
+                      <button
+                        onClick={() => setPlayingEpisode(null)}
+                        className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer"
+                      >
+                        <X className="h-4 w-4 text-text-subtle" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Episode Navigation */}

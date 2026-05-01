@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Theater, Laugh, Swords, Heart, Globe,
@@ -11,11 +12,13 @@ import { Footer } from '@/components/layout/Footer';
 import { CategoryBar } from '@/components/shared/CategoryBar';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { BackToTop } from '@/components/shared/BackToTop';
+import { PullToRefresh } from '@/components/shared/PullToRefresh';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { ContinueWatching } from '@/components/home/ContinueWatching';
 import { FeaturedSeries } from '@/components/home/FeaturedSeries';
 import { RecentlyAdded } from '@/components/home/RecentlyAdded';
 import { MostWatched } from '@/components/home/MostWatched';
+import { BroadcastSchedule } from '@/components/home/BroadcastSchedule';
 import { CategorySection } from '@/components/home/CategorySection';
 import { SearchModal } from '@/components/shared/SearchModal';
 import { SeriesDetailPage } from '@/components/pages/SeriesDetailPage';
@@ -42,6 +45,43 @@ const pageVariants = {
 
 export default function Home() {
   const { currentPage } = useStore();
+  const touchStartX = useRef<number | null>(null);
+
+  // Swipe navigation handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - endX;
+
+    // Find the closest overflow-x-auto container from the touch point
+    const touchY = e.changedTouches[0].clientY;
+    const elementAtPoint = document.elementFromPoint(endX, touchY);
+
+    if (!elementAtPoint) {
+      touchStartX.current = null;
+      return;
+    }
+
+    // Walk up to find the nearest scrollable horizontal container
+    const scrollContainer = elementAtPoint.closest('.overflow-x-auto') as HTMLElement | null;
+
+    if (scrollContainer) {
+      const scrollAmount = Math.abs(diff) * 1.5;
+      if (diff > 80) {
+        // Swipe left (RTL: scroll right visually, but in RTL the container scrolls from right)
+        scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      } else if (diff < -80) {
+        // Swipe right
+        scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      }
+    }
+
+    touchStartX.current = null;
+  }, []);
 
   return (
     <div className="min-h-screen bg-bg flex flex-col relative overflow-x-hidden">
@@ -62,67 +102,72 @@ export default function Home() {
               initial="initial"
               animate="animate"
               exit="exit"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
-              <div className="pt-2 sm:pt-4">
-                <HeroSlider />
-              </div>
+              <PullToRefresh>
+                <div className="pt-2 sm:pt-4">
+                  <HeroSlider />
+                </div>
 
-              {/* Search Bar */}
-              <div className="mb-4">
-                <SearchBar />
-              </div>
+                {/* Search Bar */}
+                <div className="mb-4">
+                  <SearchBar />
+                </div>
 
-              <ContinueWatching />
-              <FeaturedSeries />
-              <RecentlyAdded />
-              <MostWatched />
+                <ContinueWatching />
+                <FeaturedSeries />
+                <RecentlyAdded />
+                <MostWatched />
+                <BroadcastSchedule />
 
-              {/* Category sections with accent colors */}
-              <CategorySection
-                title="مسلسلات تركية"
-                category="turkish"
-                icon={<Globe className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="دراما كورية"
-                category="korean"
-                icon={<Star className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="دراما عربية"
-                category="drama"
-                icon={<Theater className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="مسلسلات هندية"
-                category="indian"
-                icon={<Music className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="كوميدي"
-                category="comedy"
-                icon={<Laugh className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="أكشن وإثارة"
-                category="action"
-                icon={<Swords className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="رومانسي"
-                category="romantic"
-                icon={<Heart className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="رسوم متحركة"
-                category="cartoon"
-                icon={<Palette className="h-4 w-4" />}
-              />
-              <CategorySection
-                title="وثائقيات"
-                category="documentary"
-                icon={<BookOpen className="h-4 w-4" />}
-              />
+                {/* Category sections with accent colors */}
+                <CategorySection
+                  title="مسلسلات تركية"
+                  category="turkish"
+                  icon={<Globe className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="دراما كورية"
+                  category="korean"
+                  icon={<Star className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="دراما عربية"
+                  category="drama"
+                  icon={<Theater className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="مسلسلات هندية"
+                  category="indian"
+                  icon={<Music className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="كوميدي"
+                  category="comedy"
+                  icon={<Laugh className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="أكشن وإثارة"
+                  category="action"
+                  icon={<Swords className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="رومانسي"
+                  category="romantic"
+                  icon={<Heart className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="رسوم متحركة"
+                  category="cartoon"
+                  icon={<Palette className="h-4 w-4" />}
+                />
+                <CategorySection
+                  title="وثائقيات"
+                  category="documentary"
+                  icon={<BookOpen className="h-4 w-4" />}
+                />
+              </PullToRefresh>
             </motion.div>
           )}
 

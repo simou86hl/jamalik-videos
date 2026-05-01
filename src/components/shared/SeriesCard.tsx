@@ -12,9 +12,15 @@ interface SeriesCardProps {
 }
 
 export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
-  const { selectSeries, toggleFavorite, isFavorite } = useStore();
+  const { selectSeries, toggleFavorite, isFavorite, watchProgress } = useStore();
   const favorited = isFavorite(series.id);
   const isXs = size === 'xs';
+
+  // Get latest watch progress for this series
+  const seriesProgress = watchProgress
+    .filter((p) => p.seriesId === series.id)
+    .sort((a, b) => new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime())[0];
+  const progressPercent = seriesProgress ? Math.min(100, (seriesProgress.timestamp / 2700) * 100) : 0;
 
   const sizeClasses = {
     xs: 'w-full',
@@ -64,6 +70,16 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
             </div>
           </div>
         </div>
+
+        {/* Watch Progress Bar */}
+        {seriesProgress && (
+          <div className="w-full h-0.5 bg-border rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-primary rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        )}
 
         {/* Title - wider container scaled down: text gets more room, less truncation */}
         <div
