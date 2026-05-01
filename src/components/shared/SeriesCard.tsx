@@ -166,6 +166,15 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
 
         {/* Bottom Info */}
         <div className="absolute bottom-0 left-0 right-0 p-2.5">
+          {/* Watch Progress Bar */}
+          {seriesProgress && (
+            <div className="w-full h-0.5 bg-white/20 rounded-full overflow-hidden mb-1.5">
+              <div
+                className="h-full bg-gradient-primary rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          )}
           <h3 className="text-[9px] font-bold text-white truncate mb-0.5">
             {series.title}
           </h3>

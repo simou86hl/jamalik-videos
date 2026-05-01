@@ -1,10 +1,10 @@
 {
-  "name": "جمالكِ - Jamalik",
-  "short_name": "جمالكِ",
-  "description": "موقع شامل للمرأة العربية يغطي الموضة والطبخ والعناية بالبشرة والشعر واللياقة والتجميل والصحة",
+  "name": "مسلسلات أونلاين | Musalsalat Online",
+  "short_name": "مسلسلات",
+  "description": "شاهد أحدث المسلسلات العربية والعالمية بجودة عالية. دراما، كوميدي، أكشن، رومانسي، تركية، هندية، كرتون، وثائقي",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fdf8f4",
+  "background_color": "#0a0a0a",
   "theme_color": "#c2185b",
   "orientation": "portrait-primary",
   "dir": "rtl",
@@ -13,12 +13,14 @@
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
