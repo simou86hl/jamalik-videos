@@ -71,8 +71,8 @@ function getDailymotionEmbedUrl(url: string): string {
   // Convert regular Dailymotion URL to embed URL
   const match = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
   if (match) {
-    // api=1 enables postMessage control, autoplay=1 for auto-play, ui-logo=0 hides logo
-    return `https://www.dailymotion.com/embed/video/${match[1]}?api=1&autoplay=1&quality=720&ui-logo=0&ui-start-screen-info=0`;
+    // api=postMessage enables postMessage control, post_origin=* allows messages from any origin
+    return `https://www.dailymotion.com/embed/video/${match[1]}?api=postMessage&post_origin=*&autoplay=1&quality=720&ui-logo=0&ui-start-screen-info=0`;
   }
   return url;
 }
@@ -104,6 +104,11 @@ export function WatchPartyPage() {
       const saved = localStorage.getItem('watchparty-room');
       if (saved) {
         const parsed = JSON.parse(saved) as RoomState;
+        // Clear old rooms with wrong api parameter
+        if (parsed.videoUrl && parsed.videoUrl.includes('api=1')) {
+          localStorage.removeItem('watchparty-room');
+          return;
+        }
         setRoom(parsed);
         setIsAdmin(parsed.host === 'أنت');
         setPhase('room');
@@ -175,9 +180,10 @@ export function WatchPartyPage() {
     const iframe = playerRef.current;
     if (!iframe?.contentWindow) return;
     try {
+      // Send object directly (NOT JSON string) - Dailymotion expects an object
       iframe.contentWindow.postMessage(
-        JSON.stringify({ method, value }),
-        'https://www.dailymotion.com'
+        { method, value },
+        '*'
       );
     } catch (e) {
       console.warn('Player command failed:', e);
