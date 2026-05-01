@@ -5,10 +5,34 @@ import {
   Users, Send, X, Play, Smile, Copy, Check,
   Plus, LogIn, Tv, Share2,
   ChevronDown, Sparkles, Crown, Eye,
+  Volume2, VolumeX, Pause, SkipForward, SkipBack,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { cn } from '@/lib/utils';
 import { ALL_SERIES } from '@/data/seriesData';
+
+declare global {
+  interface Window {
+    DM?: {
+      player: (container: HTMLElement, options: Record<string, unknown>) => DMPlayer;
+    };
+  }
+}
+
+interface DMPlayer {
+  play: () => void;
+  pause: () => void;
+  seek: (time: number) => void;
+  setMute: (muted: boolean) => void;
+  setVolume: (vol: number) => void;
+  getMuted: () => boolean;
+  getVolume: () => number;
+  getCurrentTime: () => number;
+  getDuration: () => number;
+  addEventListener: (event: string, callback: (...args: unknown[]) => void) => void;
+  removeEventListener: (event: string, callback: (...args: unknown[]) => void) => void;
+  destroy: () => void;
+}
 
 interface ChatMessage {
   id: number;
@@ -26,7 +50,7 @@ interface RoomState {
   seriesTitle: string | null;
   seriesSlug: string | null;
   episodeTitle: string | null;
-  videoUrl: string | null;
+  videoId: string | null;
   isLive: boolean;
   isPlaying: boolean;
   createdAt: string;
@@ -66,17 +90,19 @@ const formatTime = () => {
   return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 };
 
-function getDailymotionEmbedUrl(url: string): string {
-  // Convert regular Dailymotion URL to embed URL
+function extractVideoId(url: string): string | null {
   const match = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
-  if (match) {
-    return `https://www.dailymotion.com/embed/video/${match[1]}?autoplay=1&quality=720`;
-  }
-  return url;
+  return match ? match[1] : null;
+}
+
+function formatPlayerTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 export function WatchPartyPage() {
-  const { goBack, selectedSeries } = useStore();
+  const { goBack } = useStore();
   const [phase, setPhase] = useState<'lobby' | 'room'>('lobby');
   const [isAdmin, setIsAdmin] = useState(true);
   const [joinMode, setJoinMode] = useState(false);
@@ -89,10 +115,144 @@ export function WatchPartyPage() {
   const [showSeriesPicker, setShowSeriesPicker] = useState(false);
   const [selectedSerie, setSelectedSerie] = useState<{ id: string; title: string; slug: string; videoUrl: string } | null>(null);
   const [selectedEpIdx, setSelectedEpIdx] = useState(0);
+
+  // Player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playerReady, setPlayerReady] = useState(false);
+  const [sdkLoaded, setSdkLoaded] = useState(false);
+
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<DMPlayer | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const msgId = useRef(1);
+  const timeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Restore room from localStorage
+  // ── Load Dailymotion SDK ──
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !window.DM) {
+      const script = document.createElement('script');
+      script.src = 'https://api.dmcdn.net/all.js';
+      script.async = true;
+      script.onload = () => setSdkLoaded(true);
+      script.onerror = () => setSdkLoaded(true); // mark as loaded even on error
+      document.head.appendChild(script);
+    } else if (window.DM) {
+      setSdkLoaded(true);
+    }
+  }, []);
+
+  // ── Create/destroy player when room changes ──
+  useEffect(() => {
+    if (phase !== 'room' || !room?.videoId || !playerContainerRef.current || !window.DM) return;
+
+    // Destroy previous player
+    if (playerRef.current) {
+      try { playerRef.current.destroy(); } catch {}
+      playerRef.current = null;
+    }
+
+    const container = playerContainerRef.current;
+    container.innerHTML = '';
+
+    const player = window.DM.player(container, {
+      video: room.videoId,
+      width: '100%',
+      height: '100%',
+      params: {
+        autoplay: true,
+        mute: false,
+        quality: 720,
+        'ui-logo': false,
+        'ui-start-screen-info': false,
+      },
+    });
+
+    playerRef.current = player;
+
+    const handleReady = () => {
+      setPlayerReady(true);
+      setDuration(player.getDuration() || 0);
+      if (isAdmin) {
+        try { player.play(); setIsPlaying(true); } catch {}
+      }
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      addSystemMessage('انتهت الحلقة! 🎬');
+    };
+    const handleTimeUpdate = () => {
+      try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
+    };
+
+    player.addEventListener('apiready', handleReady);
+    player.addEventListener('play', handlePlay);
+    player.addEventListener('pause', handlePause);
+    player.addEventListener('ended', handleEnded);
+    player.addEventListener('timeupdate', handleTimeUpdate);
+
+    // Track time
+    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
+    timeIntervalRef.current = setInterval(() => {
+      try { setCurrentTime(player.getCurrentTime() || 0); } catch {}
+    }, 1000);
+
+    return () => {
+      player.removeEventListener('apiready', handleReady);
+      player.removeEventListener('play', handlePlay);
+      player.removeEventListener('pause', handlePause);
+      player.removeEventListener('ended', handleEnded);
+      player.removeEventListener('timeupdate', handleTimeUpdate);
+      if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
+    };
+  }, [phase, room?.videoId, sdkLoaded]);
+
+  // Cleanup player on unmount
+  useEffect(() => {
+    return () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+      }
+    };
+  }, []);
+
+  // ── Player Controls (REAL control via SDK) ──
+  const handlePlayPause = useCallback(() => {
+    if (!playerRef.current || !isAdmin) return;
+    if (isPlaying) {
+      playerRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      playerRef.current.play();
+      setIsPlaying(true);
+    }
+  }, [isPlaying, isAdmin]);
+
+  const handleSeek = useCallback((seconds: number) => {
+    if (!playerRef.current || !isAdmin) return;
+    const newTime = Math.max(0, Math.min(currentTime + seconds, duration));
+    playerRef.current.seek(newTime);
+    setCurrentTime(newTime);
+  }, [currentTime, duration, isAdmin]);
+
+  const handleMute = useCallback(() => {
+    if (!playerRef.current) return;
+    const newMuted = !isMuted;
+    playerRef.current.setMute(newMuted);
+    setIsMuted(newMuted);
+  }, [isMuted]);
+
+  const handleSeekTo = useCallback((time: number) => {
+    if (!playerRef.current || !isAdmin) return;
+    playerRef.current.seek(Math.max(0, Math.min(time, duration)));
+  }, [duration, isAdmin]);
+
+  // ── Restore room from localStorage ──
   useEffect(() => {
     try {
       const saved = localStorage.getItem('watchparty-room');
@@ -183,7 +343,7 @@ export function WatchPartyPage() {
   const createRoom = () => {
     const code = generateRoomCode();
     const videoUrl = selectedSerie?.videoUrl || null;
-    const embedUrl = videoUrl ? getDailymotionEmbedUrl(videoUrl) : null;
+    const videoId = videoUrl ? extractVideoId(videoUrl) : null;
     const newRoom: RoomState = {
       id: `room-${Date.now()}`,
       name: `غرفة ${code}`,
@@ -192,18 +352,22 @@ export function WatchPartyPage() {
       seriesTitle: selectedSerie?.title || null,
       seriesSlug: selectedSerie?.slug || null,
       episodeTitle: selectedSerie ? `الحلقة ${selectedEpIdx + 1}` : null,
-      videoUrl: embedUrl,
+      videoId,
       isLive: true,
-      isPlaying: !!embedUrl,
+      isPlaying: !!videoId,
       createdAt: new Date().toISOString(),
     };
     setRoom(newRoom);
     setIsAdmin(true);
     setPhase('room');
     setOnlineCount(1);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setPlayerReady(false);
     setMessages([{
       id: 0, user: 'النظام',
-      text: `تم إنشاء الغرفة بنجاح! 🎬\nكود الغرفة: ${code}\n${isAdmin ? 'أنت المدير - تحكم بالفيديو واختر الحلقات' : 'انتظر المدير لتشغيل الفيديو'}`,
+      text: `تم إنشاء الغرفة بنجاح! 🎬\nكود الغرفة: ${code}\nأنت المدير - تحكم بالفيديو واختر الحلقات`,
       time: formatTime(), isMe: false,
     }]);
   };
@@ -218,7 +382,7 @@ export function WatchPartyPage() {
       seriesTitle: null,
       seriesSlug: null,
       episodeTitle: null,
-      videoUrl: getDailymotionEmbedUrl('https://www.dailymotion.com/video/x9abw5k'),
+      videoId: 'x9abw5k',
       isLive: true,
       isPlaying: true,
       createdAt: new Date().toISOString(),
@@ -227,6 +391,10 @@ export function WatchPartyPage() {
     setIsAdmin(false);
     setPhase('room');
     setOnlineCount(3 + Math.floor(Math.random() * 10));
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setPlayerReady(false);
     setMessages([{
       id: 0, user: 'النظام',
       text: `مرحباً بك في غرفة ${joinCode.toUpperCase()}!\nأنت مشاهد - المدير يتحكم بالفيديو\nاستمتع بالمشاهدة وتحدث في الشات! 💬`,
@@ -284,12 +452,20 @@ export function WatchPartyPage() {
 
   const leaveRoom = () => {
     localStorage.removeItem('watchparty-room');
+    if (playerRef.current) {
+      try { playerRef.current.destroy(); } catch {}
+      playerRef.current = null;
+    }
     setRoom(null);
     setPhase('lobby');
     setMessages([]);
     setOnlineCount(1);
     setShowSeriesPicker(false);
     setIsAdmin(true);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setPlayerReady(false);
   };
 
   const changeEpisode = (epIdx: number) => {
@@ -298,13 +474,16 @@ export function WatchPartyPage() {
     const series = ALL_SERIES.find(s => s.slug === selectedSerie.slug);
     if (series && series.seasons[0]) {
       const ep = series.seasons[0].episodes[epIdx];
-      const embedUrl = ep.videoUrl ? getDailymotionEmbedUrl(ep.videoUrl) : null;
+      const videoId = ep.videoUrl ? extractVideoId(ep.videoUrl) : null;
       setRoom(prev => prev ? {
         ...prev,
         episodeTitle: ep.title,
-        videoUrl: embedUrl,
-        isPlaying: !!embedUrl,
+        videoId,
+        isPlaying: !!videoId,
       } : prev);
+      setPlayerReady(false);
+      setIsPlaying(false);
+      setCurrentTime(0);
       addSystemMessage(`تم تغيير الحلقة إلى: ${ep.title}`);
     }
   };
@@ -538,6 +717,7 @@ export function WatchPartyPage() {
   // ROOM SCREEN
   // ═══════════════════════════════════════════════════
   const episodeList = room?.seriesSlug ? getEpisodeList(room.seriesSlug) : [];
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="pt-2 pb-16 flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
@@ -551,7 +731,6 @@ export function WatchPartyPage() {
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-[11px] font-bold text-text-main">غرفة {room?.code}</span>
-              {/* Role badge */}
               <span className={cn(
                 'px-1.5 py-0.5 rounded-full text-[8px] font-bold flex items-center gap-0.5',
                 isAdmin ? 'bg-accent/15 text-accent' : 'bg-blue-500/15 text-blue-500'
@@ -586,43 +765,45 @@ export function WatchPartyPage() {
         </div>
       </div>
 
-      {/* Video Area */}
+      {/* Video Player Area */}
       <div className="relative rounded-2xl overflow-hidden glass mb-2">
         <div className="relative aspect-video">
-          {room?.videoUrl ? (
+          {room?.videoId ? (
             <>
-              <iframe
-                key={room.videoUrl}
-                src={room.videoUrl}
-                className="absolute inset-0 w-full h-full"
-                allowFullScreen
-                allow={isAdmin ? 'autoplay; fullscreen; encrypted-media; picture-in-picture' : 'autoplay'}
-                style={{ border: 'none', pointerEvents: isAdmin ? 'auto' : 'none' }}
-                title={room.seriesTitle || 'Watch Party'}
+              {/* Dailymotion Player Container */}
+              <div
+                ref={playerContainerRef}
+                className="absolute inset-0 [&>div]:!w-full [&>div]:!h-full [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:rounded-none"
               />
-              {/* Viewer overlay - blocks all interaction */}
+
+              {/* Loading indicator */}
+              {!playerReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-5">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="w-8 h-8 rounded-full border-2 border-white/30 border-t-white"
+                  />
+                </div>
+              )}
+
+              {/* Viewer blocking overlay */}
               {!isAdmin && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center" style={{ pointerEvents: 'auto', background: 'transparent' }}>
-                  {/* Invisible blocking layer */}
-                  <div className="absolute inset-0" style={{ background: 'transparent' }} />
-                  {/* Visual badge */}
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-end" style={{ background: 'transparent' }}>
                   <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-[10px] font-bold text-white flex items-center gap-1.5">
                     <Eye className="h-3 w-3 text-blue-400" />
                     وضع المشاهدة فقط
                   </div>
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm">
-                    <p className="text-[9px] text-white/80 text-center">المدير يتحكم بالفيديو</p>
-                  </div>
                 </div>
               )}
-              {/* Admin badge - doesn't block interaction */}
-              {isAdmin && (
-                <div className="absolute top-2 right-2 z-10" style={{ pointerEvents: 'none' }}>
-                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white flex items-center gap-1">
-                    <Crown className="h-3 w-3 text-yellow-400" /> مدير
-                  </span>
-                </div>
-              )}
+
+              {/* Live badge */}
+              <div className="absolute top-2 left-2 z-10">
+                <span className="text-[9px] text-white/80 glass px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  مباشر
+                </span>
+              </div>
             </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-rose-900/40 to-purple-900/40 flex flex-col items-center justify-center">
@@ -643,14 +824,88 @@ export function WatchPartyPage() {
               )}
             </div>
           )}
-          <div className="absolute top-2 left-2">
-            <span className="text-[9px] text-white/80 glass px-2 py-0.5 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              مباشر
-            </span>
-          </div>
         </div>
       </div>
+
+      {/* ═══ ADMIN: Video Control Bar ═══ */}
+      {isAdmin && room?.videoId && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-2.5 rounded-2xl glass-subtle border border-primary/10 mb-2 mx-1"
+        >
+          {/* Progress bar - clickable to seek */}
+          <div
+            className="w-full h-1.5 rounded-full bg-white/10 mb-2.5 cursor-pointer relative overflow-hidden"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = (e.clientX - rect.left) / rect.width;
+              handleSeekTo(ratio * duration);
+            }}
+          >
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+              style={{ width: `${progress}%` }}
+              layout
+            />
+          </div>
+
+          {/* Time display */}
+          <div className="flex items-center justify-between mb-2 px-0.5">
+            <span className="text-[9px] text-text-muted font-mono">{formatPlayerTime(currentTime)}</span>
+            <span className="text-[9px] text-text-muted font-mono">{formatPlayerTime(duration)}</span>
+          </div>
+
+          {/* Control buttons */}
+          <div className="flex items-center justify-between">
+            {/* Left controls */}
+            <div className="flex items-center gap-1.5">
+              {/* Rewind 10s */}
+              <button
+                onClick={() => handleSeek(-10)}
+                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+              >
+                <SkipBack className="h-4 w-4 text-text-main" />
+              </button>
+
+              {/* Play / Pause - MAIN button */}
+              <button
+                onClick={handlePlayPause}
+                className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center cursor-pointer shadow-[var(--shadow-glow)] active:scale-90 transition-transform"
+              >
+                {isPlaying ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white mr-0.5" />}
+              </button>
+
+              {/* Forward 10s */}
+              <button
+                onClick={() => handleSeek(10)}
+                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+              >
+                <SkipForward className="h-4 w-4 text-text-main" />
+              </button>
+            </div>
+
+            {/* Right controls */}
+            <div className="flex items-center gap-1.5">
+              {/* Status */}
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/5">
+                <div className={cn('w-1.5 h-1.5 rounded-full', isPlaying ? 'bg-green-400 animate-pulse' : 'bg-yellow-400')} />
+                <span className="text-[9px] font-medium text-text-subtle">
+                  {isPlaying ? 'يشغل' : 'متوقف'}
+                </span>
+              </div>
+
+              {/* Mute */}
+              <button
+                onClick={handleMute}
+                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+              >
+                {isMuted ? <VolumeX className="h-4 w-4 text-red-400" /> : <Volume2 className="h-4 w-4 text-text-main" />}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Admin: Episode selector */}
       {isAdmin && episodeList.length > 0 && (
