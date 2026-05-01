@@ -344,36 +344,35 @@ export function SeriesDetailPage() {
                 className="mb-6 overflow-hidden"
               >
                 <div className="relative glass rounded-2xl overflow-hidden">
-                  {/* Video Placeholder */}
+                  {/* Video Player - iframe for real URLs, placeholder otherwise */}
                   <div className="relative aspect-video bg-card-elevated">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center opacity-30"
-                      style={{ backgroundImage: `url(${playingEpisode.thumbnail})` }}
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg mb-3 animate-glow">
-                        <Play className="h-7 w-7 text-white fill-white" />
-                      </div>
-                      <p className="text-sm font-bold text-text-main">{playingEpisode.title}</p>
-                      <p className="text-xs text-text-subtle">{playingEpisode.duration}</p>
-                    </div>
-
-                    {/* Feature 2: Resume progress bar */}
-                    {resumeTimestamp > 0 && (
-                      <div className="absolute bottom-0 left-0 right-0">
-                        <div className="h-1 bg-black/30">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(resumePercent, 100)}%` }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className="h-full bg-gradient-primary rounded-full"
-                          />
+                    {playingEpisode.videoUrl.includes('dailymotion.com/embed') || playingEpisode.videoUrl.includes('youtube.com/embed') || playingEpisode.videoUrl.includes('player.vimeo') ? (
+                      <iframe
+                        src={`${playingEpisode.videoUrl}${playingEpisode.videoUrl.includes('?') ? '&' : '?'}autoplay=1&quality=720`}
+                        className="absolute inset-0 w-full h-full"
+                        allowFullScreen
+                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                        style={{ border: 'none' }}
+                        title={playingEpisode.title}
+                      />
+                    ) : (
+                      <>
+                        <div
+                          className="absolute inset-0 bg-cover bg-center opacity-30"
+                          style={{ backgroundImage: `url(${playingEpisode.thumbnail})` }}
+                        />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg mb-3 animate-glow">
+                            <Play className="h-7 w-7 text-white fill-white" />
+                          </div>
+                          <p className="text-sm font-bold text-text-main">{playingEpisode.title}</p>
+                          <p className="text-xs text-text-subtle">{playingEpisode.duration}</p>
                         </div>
-                      </div>
+                      </>
                     )}
 
-                    {/* Feature 2: Resume indicator */}
-                    {resumeTimestamp > 0 && (
+                    {/* Resume indicator (only for placeholder) */}
+                    {!playingEpisode.videoUrl.includes('dailymotion.com/embed') && resumeTimestamp > 0 && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}

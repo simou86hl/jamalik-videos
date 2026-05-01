@@ -56,7 +56,12 @@ const ALL_SERIES: Series[] = [
     language: 'تركية (مدبلج)',
     director: 'ياسمين أوزديمير',
     cast: ['بوراك أوزجيفيت', 'نسرين جواد', 'محمد أونال', 'دينا الشربيني'],
-    seasons: makeSeasons('ahd-alqamar', [30, 30, 30]),
+    seasons: (() => {
+      const s = makeSeasons('ahd-alqamar', [30, 30, 30]);
+      // Override first episode with real video
+      s[0].episodes[0].videoUrl = 'https://www.dailymotion.com/embed/video/x9abw5k';
+      return s;
+    })(),
     rating: { average: 4.7, count: 15230 },
     views: 8500000,
     isFeatured: true,
