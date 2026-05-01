@@ -87,8 +87,8 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
         {/* Bottom Info */}
         <div className={cn('absolute bottom-0 left-0 right-0', isXs ? 'px-1 py-0.5' : 'p-2.5')}>
           <h3 className={cn(
-            'font-semibold text-white',
-            isXs ? 'text-[6px] leading-tight line-clamp-2' : 'text-[11px] sm:text-xs font-bold line-clamp-1'
+            'text-white',
+            isXs ? 'text-[10px] font-normal leading-tight line-clamp-1 truncate' : 'text-[11px] sm:text-xs font-bold line-clamp-1'
           )}>
             {series.title}
           </h3>
