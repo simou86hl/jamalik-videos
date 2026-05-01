@@ -27,9 +27,9 @@ function PosterCard({ series }: PosterCardProps) {
     <motion.button
       variants={itemVariants}
       onClick={() => selectSeries(series)}
-      className="flex-shrink-0 w-[130px] sm:w-[150px] rounded-2xl overflow-hidden card-hover-lift cursor-pointer group relative"
+      className="flex-shrink-0 w-[120px] sm:w-[140px] rounded-2xl overflow-hidden card-hover-lift cursor-pointer group relative"
     >
-      <div className="relative h-[185px] sm:h-[210px] overflow-hidden">
+      <div className="relative h-[170px] sm:h-[198px] overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
           style={{ backgroundImage: `url(${series.thumbnail})` }}
@@ -37,7 +37,7 @@ function PosterCard({ series }: PosterCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         {/* Status Badge */}
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-1.5 right-1.5">
           <span className={cn(
             'px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white',
             series.status === 'مستمر' ? 'bg-success/90' : 'bg-primary/90'
@@ -50,7 +50,7 @@ function PosterCard({ series }: PosterCardProps) {
         <motion.button
           whileTap={{ scale: 0.8 }}
           onClick={(e) => { e.stopPropagation(); toggleFavorite(series.id); }}
-          className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full glass flex items-center justify-center cursor-pointer"
+          className="absolute top-1.5 left-1.5 z-10 w-6 h-6 rounded-full glass flex items-center justify-center cursor-pointer"
         >
           <Heart
             className={cn('h-3 w-3 transition-colors', favorited ? 'text-primary fill-primary' : 'text-white/80')}
@@ -59,14 +59,14 @@ function PosterCard({ series }: PosterCardProps) {
 
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <Play className="h-4 w-4 text-white fill-white mr-[-2px]" />
+          <div className="w-9 h-9 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg shadow-primary/30">
+            <Play className="h-3.5 w-3.5 text-white fill-white mr-[-2px]" />
           </div>
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-2.5">
-          <h3 className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-1">
+        <div className="absolute bottom-0 left-0 right-0 p-2">
+          <h3 className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-0.5">
             {series.title}
           </h3>
           <div className="flex items-center gap-2">
@@ -88,15 +88,15 @@ export function FeaturedSeries() {
   if (featured.length === 0) return null;
 
   return (
-    <section className="py-6">
-      <div className="flex items-center gap-2 mb-4">
+    <section className="py-5">
+      <div className="flex items-center gap-2 mb-3">
         <TrendingUp className="h-5 w-5 text-primary" />
         <h2 className="text-lg sm:text-xl font-heading font-bold text-text-main">
           مسلسلات مميزة
         </h2>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2">
         {featured.map((series) => (
           <PosterCard key={series.id} series={series} />
         ))}

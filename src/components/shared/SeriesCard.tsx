@@ -9,7 +9,7 @@ import type { Series } from '@/types';
 
 interface SeriesCardProps {
   series: Series;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
@@ -18,16 +18,20 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
   const favorited = isFavorite(series.id);
 
   const sizeClasses = {
+    xs: 'w-[105px] sm:w-[120px] md:w-[135px]',
     sm: 'w-[130px] sm:w-[150px]',
     md: 'w-[160px] sm:w-[180px]',
     lg: 'w-[180px] sm:w-[200px]',
   };
 
   const heightClasses = {
+    xs: 'h-[150px] sm:h-[170px] md:h-[192px]',
     sm: 'h-[185px] sm:h-[210px]',
     md: 'h-[220px] sm:h-[250px]',
     lg: 'h-[250px] sm:h-[280px]',
   };
+
+  const isXs = size === 'xs';
 
   return (
     <motion.button
@@ -35,7 +39,7 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
       whileTap={{ scale: 0.97 }}
       onClick={() => selectSeries(series)}
       className={cn(
-        'flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer group relative card-hover-lift',
+        'rounded-2xl overflow-hidden cursor-pointer group relative card-hover-lift',
         sizeClasses[size]
       )}
     >
@@ -48,9 +52,10 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         {/* Status Badge - top right */}
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-1.5 right-1.5">
           <span className={cn(
-            'px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white',
+            'px-1.5 py-0.5 rounded-full font-bold text-white',
+            isXs ? 'text-[8px]' : 'text-[9px]',
             series.status === 'مستمر' ? 'bg-success/90' : 'bg-primary/90'
           )}>
             {series.status}
@@ -64,12 +69,16 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
             e.stopPropagation();
             toggleFavorite(series.id);
           }}
-          className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full glass flex items-center justify-center cursor-pointer"
+          className={cn(
+            'absolute top-1.5 left-1.5 z-10 rounded-full glass flex items-center justify-center cursor-pointer',
+            isXs ? 'w-5 h-5' : 'w-6 h-6'
+          )}
           aria-label="إضافة للمفضلة"
         >
           <Heart
             className={cn(
-              'h-3 w-3 transition-colors',
+              'transition-colors',
+              isXs ? 'h-2.5 w-2.5' : 'h-3 w-3',
               favorited ? 'text-primary fill-primary' : 'text-white/80'
             )}
           />
@@ -77,25 +86,33 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
 
         {/* Play Button Overlay - center */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <Play className="h-4 w-4 text-white fill-white mr-[-2px]" />
+          <div className={cn(
+            'rounded-full bg-gradient-primary flex items-center justify-center shadow-lg shadow-primary/30',
+            isXs ? 'w-8 h-8' : 'w-10 h-10'
+          )}>
+            <Play className={cn('text-white fill-white mr-[-2px]', isXs ? 'h-3 w-3' : 'h-4 w-4')} />
           </div>
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-2.5">
-          <h3 className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-1">
+        <div className={cn('absolute bottom-0 left-0 right-0', isXs ? 'p-1.5' : 'p-2.5')}>
+          <h3 className={cn(
+            'font-bold text-white line-clamp-1 mb-0.5',
+            isXs ? 'text-[10px]' : 'text-[11px] sm:text-xs'
+          )}>
             {series.title}
           </h3>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Star className="h-2.5 w-2.5 text-accent fill-accent" />
-              <span className="text-[10px] font-bold text-white">{series.rating.average}</span>
+            <div className="flex items-center gap-0.5">
+              <Star className={cn('text-accent fill-accent', isXs ? 'h-2 w-2' : 'h-2.5 w-2.5')} />
+              <span className={cn('font-bold text-white', isXs ? 'text-[9px]' : 'text-[10px]')}>
+                {series.rating.average}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[9px] text-white/50">{cat?.name}</span>
-              <span className="text-[9px] text-white/30">|</span>
-              <span className="text-[9px] text-white/50">{series.year}</span>
+            <div className="flex items-center gap-0.5">
+              <span className={cn('text-white/50', isXs ? 'text-[8px]' : 'text-[9px]')}>
+                {series.year}
+              </span>
             </div>
           </div>
         </div>

@@ -65,51 +65,60 @@ export default function Home() {
               <ContinueWatching />
               <FeaturedSeries />
 
-              {/* Category-specific horizontal scrolling sections */}
+              {/* Category sections - mixed layout variants for visual diversity */}
               <CategorySection
                 title="مسلسلات تركية"
                 category="turkish"
                 icon={<Globe className="h-5 w-5 text-primary" />}
+                variant="grid"
               />
               <CategorySection
                 title="دراما كورية"
                 category="korean"
                 icon={<Star className="h-5 w-5 text-primary" />}
+                variant="scroll"
               />
               <CategorySection
                 title="دراما عربية"
                 category="drama"
                 icon={<Theater className="h-5 w-5 text-primary" />}
+                variant="grid"
               />
               <CategorySection
                 title="مسلسلات هندية"
                 category="indian"
                 icon={<Music className="h-5 w-5 text-primary" />}
+                variant="scroll"
               />
               <CategorySection
                 title="كوميدي"
                 category="comedy"
                 icon={<Laugh className="h-5 w-5 text-primary" />}
+                variant="grid"
               />
               <CategorySection
                 title="أكشن وإثارة"
                 category="action"
                 icon={<Swords className="h-5 w-5 text-primary" />}
+                variant="scroll"
               />
               <CategorySection
                 title="رومانسي"
                 category="romantic"
                 icon={<Heart className="h-5 w-5 text-primary" />}
+                variant="grid"
               />
               <CategorySection
                 title="رسوم متحركة"
                 category="cartoon"
                 icon={<Palette className="h-5 w-5 text-primary" />}
+                variant="scroll"
               />
               <CategorySection
                 title="وثائقيات"
                 category="documentary"
                 icon={<BookOpen className="h-5 w-5 text-primary" />}
+                variant="grid"
               />
             </motion.div>
           )}
