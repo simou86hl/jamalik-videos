@@ -85,10 +85,10 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
         </div>
 
         {/* Bottom Info */}
-        <div className={cn('absolute bottom-0 left-0 right-0', isXs ? 'p-1' : 'p-2.5')}>
+        <div className={cn('absolute bottom-0 left-0 right-0', isXs ? 'px-1 py-0.5' : 'p-2.5')}>
           <h3 className={cn(
-            'font-bold text-white',
-            isXs ? 'text-[8px] leading-tight line-clamp-2' : 'text-[11px] sm:text-xs line-clamp-1'
+            'font-semibold text-white',
+            isXs ? 'text-[7px] leading-snug line-clamp-2' : 'text-[11px] sm:text-xs font-bold line-clamp-1'
           )}>
             {series.title}
           </h3>
