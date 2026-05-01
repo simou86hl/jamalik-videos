@@ -397,7 +397,7 @@ export function SeriesDetailPage() {
               <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
                 {similarSeries.map((s) => (
                   <div key={s.id} className="flex-shrink-0 w-[140px] sm:w-[160px]">
-                    <SeriesCard series={s} size="md" />
+                    <SeriesCard series={s} />
                   </div>
                 ))}
               </div>

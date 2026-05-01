@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Film, SlidersHorizontal } from 'lucide-react';
+import { Film, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ALL_SERIES } from '@/data/seriesData';
 import { CATEGORIES } from '@/lib/constants';
+import { CategoryBar } from '@/components/shared/CategoryBar';
 import { SeriesCard } from '@/components/shared/SeriesCard';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ const itemVariants = {
 };
 
 export function CategoryPage() {
-  const { selectedCategory, searchQuery } = useStore();
+  const { selectedCategory, searchQuery, navigateTo } = useStore();
   const [sortBy, setSortBy] = useState<'rating' | 'views' | 'year' | 'name'>('rating');
 
   // Determine series to show
@@ -55,23 +56,39 @@ export function CategoryPage() {
   const desc = searchQuery ? `تم العثور على ${filtered.length} مسلسل` : category?.description || '';
 
   return (
-    <div className="py-6">
-      {/* Header */}
+    <div>
+      {/* Category bar at top */}
+      <div className="pt-4 sm:pt-6 mb-5">
+        <CategoryBar showAll />
+      </div>
+
+      {/* Header with back button */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-4"
       >
-        <div className="flex items-center gap-2 mb-2">
-          <Film className="h-5 w-5 text-primary" />
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-main">
-            {title}
-          </h1>
+        <div className="flex items-center gap-3 mb-2">
+          {/* Back button */}
+          <button
+            onClick={() => navigateTo('home')}
+            className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors duration-200"
+            aria-label="الرجوع للرئيسية"
+          >
+            <ArrowRight className="h-4 w-4 text-text-main" />
+          </button>
+
+          <div className="flex items-center gap-2 min-w-0">
+            <Film className="h-5 w-5 text-primary flex-shrink-0" />
+            <h1 className="text-xl sm:text-2xl font-heading font-bold text-text-main truncate">
+              {title}
+            </h1>
+          </div>
         </div>
         {desc && (
-          <p className="text-sm text-text-subtle">{desc}</p>
+          <p className="text-sm text-text-subtle mr-11">{desc}</p>
         )}
-        <p className="text-xs text-text-subtle mt-1">{filtered.length} مسلسل</p>
+        <p className="text-xs text-text-subtle mt-0.5 mr-11">{filtered.length} مسلسل</p>
       </motion.div>
 
       {/* Sort Bar */}
@@ -89,7 +106,7 @@ export function CategoryPage() {
             className={cn(
               'flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all cursor-pointer',
               sortBy === option.key
-                ? 'bg-gradient-primary text-white'
+                ? 'bg-gradient-primary text-white shadow-sm'
                 : 'glass-subtle text-text-subtle hover:text-primary'
             )}
           >
