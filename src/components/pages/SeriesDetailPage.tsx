@@ -56,8 +56,8 @@ export function SeriesDetailPage() {
       lastWatched: new Date().toISOString(),
     });
     setTimeout(() => {
-      episodesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   const navigateEpisode = (direction: 'prev' | 'next') => {
