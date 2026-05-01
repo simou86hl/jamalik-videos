@@ -1,25 +1,28 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Theater, Laugh, Swords, Heart, Globe,
-  Music, Palette, BookOpen, Tv, ChevronLeft, ChevronRight,
+  Music, Palette, BookOpen, Tv, Star, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { CATEGORIES } from '@/lib/constants';
 import { useStore } from '@/store/useStore';
+import { cn } from '@/lib/utils';
 import type { SeriesCategorySlug } from '@/types';
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  Theater, Laugh, Swords, Heart, Globe, Music, Palette, BookOpen,
+  Theater, Laugh, Swords, Heart, Globe, Music, Palette, BookOpen, Star,
 };
 
 interface CategoryBarProps {
   /** Show "الكل" chip to go back to home */
   showAll?: boolean;
+  /** Sticky mode - sticks to top below navbar */
+  sticky?: boolean;
 }
 
-export function CategoryBar({ showAll = false }: CategoryBarProps) {
+export function CategoryBar({ showAll = false, sticky = false }: CategoryBarProps) {
   const { selectedCategory, selectCategory, navigateTo, currentPage } = useStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -41,22 +44,37 @@ export function CategoryBar({ showAll = false }: CategoryBarProps) {
     });
   };
 
+  // Auto-scroll to active category
+  useEffect(() => {
+    if (selectedCategory && scrollRef.current) {
+      const activeBtn = scrollRef.current.querySelector('[data-active="true"]');
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [selectedCategory]);
+
+  const isAllActive = !selectedCategory || currentPage === 'home';
+
   return (
-    <div className="relative group/bar">
+    <div className={cn(
+      'relative group/bar',
+      sticky && 'sticky top-16 z-40 bg-bg/90 backdrop-blur-lg border-b border-border/30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2'
+    )}>
       {/* Scroll buttons - desktop only */}
       <button
         onClick={() => scroll('left')}
-        className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full glass items-center justify-center cursor-pointer opacity-0 group-hover/bar:opacity-100 transition-opacity duration-200 hover:shadow-md"
+        className="hidden lg:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-bg/80 border border-border/50 flex items-center justify-center cursor-pointer opacity-0 group-hover/bar:opacity-100 transition-opacity duration-200 hover:shadow-md"
         aria-label="تمرير لليمين"
       >
-        <ChevronRight className="h-4 w-4 text-text-main" />
+        <ChevronRight className="h-3 w-3 text-text-main" />
       </button>
       <button
         onClick={() => scroll('right')}
-        className="hidden lg:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full glass items-center justify-center cursor-pointer opacity-0 group-hover/bar:opacity-100 transition-opacity duration-200 hover:shadow-md"
+        className="hidden lg:flex absolute -left-2 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-bg/80 border border-border/50 flex items-center justify-center cursor-pointer opacity-0 group-hover/bar:opacity-100 transition-opacity duration-200 hover:shadow-md"
         aria-label="تمرير لليسار"
       >
-        <ChevronLeft className="h-4 w-4 text-text-main" />
+        <ChevronLeft className="h-3 w-3 text-text-main" />
       </button>
 
       {/* Chips row */}
@@ -69,13 +87,14 @@ export function CategoryBar({ showAll = false }: CategoryBarProps) {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleAllClick}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer
-              ${!selectedCategory || currentPage === 'home'
-                ? 'bg-gradient-primary text-white shadow-sm'
-                : 'glass-subtle text-text-subtle hover:text-text-main'
+            data-active={isAllActive}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer
+              ${isAllActive
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-bg-secondary text-text-subtle hover:text-text-main border border-border/50'
               }`}
           >
-            <Tv className="h-3.5 w-3.5" />
+            <Tv className="h-3 w-3" />
             الكل
           </motion.button>
         )}
@@ -89,16 +108,17 @@ export function CategoryBar({ showAll = false }: CategoryBarProps) {
               key={cat.id}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleCategoryClick(cat.slug)}
+              data-active={isActive}
               className={`
-                flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full
+                flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full
                 text-xs font-bold transition-all duration-200 cursor-pointer
                 ${isActive
-                  ? 'bg-gradient-primary text-white shadow-sm'
-                  : 'glass-subtle text-text-subtle hover:text-text-main hover:bg-bg-secondary'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-bg-secondary text-text-subtle hover:text-text-main border border-border/50 hover:border-primary/30'
                 }
               `}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3 w-3" />
               {cat.name}
             </motion.button>
           );

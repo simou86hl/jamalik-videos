@@ -65,6 +65,8 @@ export function HeroSlider() {
                HERO_SLIDES[current].category === 'drama' ? 'دراما' :
                HERO_SLIDES[current].category === 'action' ? 'أكشن' :
                HERO_SLIDES[current].category === 'documentary' ? 'وثائقي' :
+               HERO_SLIDES[current].category === 'korean' ? 'كورية' :
+               HERO_SLIDES[current].category === 'indian' ? 'هندية' :
                HERO_SLIDES[current].category}
             </span>
 

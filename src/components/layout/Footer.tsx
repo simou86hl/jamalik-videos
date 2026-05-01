@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
-  Theater, Laugh, Swords, Music, Palette, BookOpen,
+  Theater, Laugh, Swords, Music, Palette, BookOpen, Star,
 } from 'lucide-react';
 import type { SeriesCategorySlug, SitePage } from '@/types';
 
@@ -31,6 +31,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   romantic: Heart,
   turkish: Globe,
   indian: Music,
+  korean: Star,
   cartoon: Palette,
   documentary: BookOpen,
 };

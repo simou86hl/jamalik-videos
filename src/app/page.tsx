@@ -1,13 +1,18 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Theater, Laugh, Swords, Heart, Globe,
+  Music, Palette, BookOpen, Star, TrendingUp, Clock,
+} from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { CategoryBar } from '@/components/shared/CategoryBar';
 import { HeroSlider } from '@/components/home/HeroSlider';
-import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { ContinueWatching } from '@/components/home/ContinueWatching';
 import { FeaturedSeries } from '@/components/home/FeaturedSeries';
+import { CategorySection } from '@/components/home/CategorySection';
 import { LatestSeries } from '@/components/home/LatestSeries';
 import { SearchModal } from '@/components/shared/SearchModal';
 import { SeriesDetailPage } from '@/components/pages/SeriesDetailPage';
@@ -41,6 +46,11 @@ export default function Home() {
 
       <Navbar />
 
+      {/* Category Bar - Sticky below navbar */}
+      <div className="max-w-7xl mx-auto w-full relative z-10">
+        <CategoryBar showAll sticky />
+      </div>
+
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-10">
         <AnimatePresence mode="wait">
           {currentPage === 'home' && (
@@ -51,13 +61,58 @@ export default function Home() {
               animate="animate"
               exit="exit"
             >
-              <div className="pt-4 sm:pt-6">
+              <div className="pt-2 sm:pt-4">
                 <HeroSlider />
               </div>
               <ContinueWatching />
-              <CategoryGrid />
               <FeaturedSeries />
-              <LatestSeries />
+
+              {/* Category-specific horizontal scrolling sections */}
+              <CategorySection
+                title="مسلسلات تركية"
+                category="turkish"
+                icon={<Globe className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="دراما كورية"
+                category="korean"
+                icon={<Star className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="دراما عربية"
+                category="drama"
+                icon={<Theater className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="مسلسلات هندية"
+                category="indian"
+                icon={<Music className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="كوميدي"
+                category="comedy"
+                icon={<Laugh className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="أكشن وإثارة"
+                category="action"
+                icon={<Swords className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="رومانسي"
+                category="romantic"
+                icon={<Heart className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="رسوم متحركة"
+                category="cartoon"
+                icon={<Palette className="h-5 w-5 text-primary" />}
+              />
+              <CategorySection
+                title="وثائقيات"
+                category="documentary"
+                icon={<BookOpen className="h-5 w-5 text-primary" />}
+              />
             </motion.div>
           )}
 

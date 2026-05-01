@@ -15,6 +15,7 @@ export type SeriesCategorySlug =
   | 'romantic'
   | 'turkish'
   | 'indian'
+  | 'korean'
   | 'cartoon'
   | 'documentary';
 

@@ -20,8 +20,9 @@ export const CATEGORIES: SeriesCategory[] = [
   { id: 'cat-4', name: 'رومانسي', slug: 'romantic', icon: 'Heart', description: 'أجمل المسلسلات الرومانسية والعاطفية', image: '/images/categories/romantic.jpg', order: 4 },
   { id: 'cat-5', name: 'تركية', slug: 'turkish', icon: 'Globe', description: 'أشهر المسلسلات التركية المدبلجة والمترجمة', image: '/images/categories/turkish.jpg', order: 5 },
   { id: 'cat-6', name: 'هندية', slug: 'indian', icon: 'Music', description: 'مسلسلات هندية ممتعة وقصص حب مثيرة', image: '/images/categories/indian.jpg', order: 6 },
-  { id: 'cat-7', name: 'كرتون', slug: 'cartoon', icon: 'Palette', description: 'أفضل الرسوم المتحركة للكبار والأطفال', image: '/images/categories/cartoon.jpg', order: 7 },
-  { id: 'cat-8', name: 'وثائقي', slug: 'documentary', icon: 'BookOpen', description: 'وثائقيات مثيرة عن التاريخ والطبيعة والعلوم', image: '/images/categories/documentary.jpg', order: 8 },
+  { id: 'cat-7', name: 'كورية', slug: 'korean', icon: 'Star', description: 'أحدث الدراما الكورية المترجمة والمشهورة', image: '/images/categories/korean.jpg', order: 7 },
+  { id: 'cat-8', name: 'كرتون', slug: 'cartoon', icon: 'Palette', description: 'أفضل الرسوم المتحركة للكبار والأطفال', image: '/images/categories/cartoon.jpg', order: 8 },
+  { id: 'cat-9', name: 'وثائقي', slug: 'documentary', icon: 'BookOpen', description: 'وثائقيات مثيرة عن التاريخ والطبيعة والعلوم', image: '/images/categories/documentary.jpg', order: 9 },
 ];
 
 // ============================================================
@@ -36,6 +37,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'رومانسي', slug: 'romantic', icon: 'Heart' },
   { label: 'تركية', slug: 'turkish', icon: 'Globe' },
   { label: 'هندية', slug: 'indian', icon: 'Music' },
+  { label: 'كورية', slug: 'korean', icon: 'Star' },
   { label: 'كرتون', slug: 'cartoon', icon: 'Palette' },
   { label: 'وثائقي', slug: 'documentary', icon: 'BookOpen' },
 ];

@@ -5,7 +5,7 @@ import {
   Search, Menu, X, Heart, Home, Tv,
   Theater, Laugh, Swords, Globe, Music,
   Palette, BookOpen, ChevronLeft, Clock,
-  MonitorPlay,
+  MonitorPlay, Star,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
@@ -21,6 +21,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   romantic: Heart,
   turkish: Globe,
   indian: Music,
+  korean: Star,
   cartoon: Palette,
   documentary: BookOpen,
 };
