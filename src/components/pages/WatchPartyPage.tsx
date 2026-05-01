@@ -283,36 +283,84 @@ export function WatchPartyPage() {
     };
   }, []);
 
-  // ── Player Controls (REAL control via SDK) ──
+  // ── Player Controls (SDK + iframe postMessage) ──
+  const sendIframeCommand = useCallback((method: string, args?: unknown) => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage(
+      args !== undefined ? { command: method, value: args } : { command: method },
+      '*'
+    );
+  }, []);
+
   const handlePlayPause = useCallback(() => {
-    if (!playerRef.current || !isAdmin) return;
-    if (isPlaying) {
-      playerRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      playerRef.current.play();
-      setIsPlaying(true);
+    if (!isAdmin) return;
+    if (!useIframe && playerRef.current) {
+      // SDK control
+      if (isPlaying) { playerRef.current.pause(); setIsPlaying(false); }
+      else { playerRef.current.play(); setIsPlaying(true); }
+    } else if (useIframe) {
+      // iframe postMessage control
+      sendIframeCommand(isPlaying ? 'pause' : 'play');
+      setIsPlaying(!isPlaying);
     }
-  }, [isPlaying, isAdmin]);
+  }, [isPlaying, isAdmin, useIframe, sendIframeCommand]);
 
   const handleSeek = useCallback((seconds: number) => {
-    if (!playerRef.current || !isAdmin) return;
+    if (!isAdmin) return;
     const newTime = Math.max(0, Math.min(currentTime + seconds, duration));
-    playerRef.current.seek(newTime);
+    if (!useIframe && playerRef.current) {
+      playerRef.current.seek(newTime);
+    } else if (useIframe) {
+      sendIframeCommand('seek', newTime);
+    }
     setCurrentTime(newTime);
-  }, [currentTime, duration, isAdmin]);
+  }, [currentTime, duration, isAdmin, useIframe, sendIframeCommand]);
 
   const handleMute = useCallback(() => {
-    if (!playerRef.current) return;
     const newMuted = !isMuted;
-    playerRef.current.setMute(newMuted);
+    if (!useIframe && playerRef.current) {
+      playerRef.current.setMute(newMuted);
+    } else if (useIframe) {
+      sendIframeCommand('mute', newMuted);
+    }
     setIsMuted(newMuted);
-  }, [isMuted]);
+  }, [isMuted, useIframe, sendIframeCommand]);
 
   const handleSeekTo = useCallback((time: number) => {
-    if (!playerRef.current || !isAdmin) return;
-    playerRef.current.seek(Math.max(0, Math.min(time, duration)));
-  }, [duration, isAdmin]);
+    if (!isAdmin) return;
+    const t = Math.max(0, Math.min(time, duration));
+    if (!useIframe && playerRef.current) {
+      playerRef.current.seek(t);
+    } else if (useIframe) {
+      sendIframeCommand('seek', t);
+    }
+    setCurrentTime(t);
+  }, [duration, isAdmin, useIframe, sendIframeCommand]);
+
+  // ── Listen for iframe postMessage events ──
+  useEffect(() => {
+    if (!useIframe) return;
+    const handler = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (!data || !data.event) return;
+        switch (data.event) {
+          case 'playing': setIsPlaying(true); break;
+          case 'pause': setIsPlaying(false); break;
+          case 'ended': setIsPlaying(false); addSystemMessage('انتهت الحلقة! 🎬'); break;
+          case 'timeupdate':
+            if (typeof data.time === 'number') setCurrentTime(data.time);
+            break;
+          case 'video_end':
+            if (typeof data.duration === 'number') setDuration(data.duration);
+            break;
+        }
+      } catch {}
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [useIframe]);
 
   // ── Restore room from localStorage ──
   useEffect(() => {
@@ -864,7 +912,8 @@ export function WatchPartyPage() {
               {/* iframe fallback - ALWAYS works */}
               {useIframe && (
                 <iframe
-                  src={`https://www.dailymotion.com/embed/video/${room.videoId}?autoplay=1&quality=720`}
+                  ref={iframeRef}
+                  src={`https://www.dailymotion.com/embed/video/${room.videoId}?autoplay=1&quality=720&api=postMessage&origin=${typeof window !== 'undefined' ? window.location.origin : '*'}`}
                   className="absolute inset-0 w-full h-full border-0"
                   allow="autoplay; fullscreen; encrypted-media"
                   allowFullScreen
