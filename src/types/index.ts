@@ -5,7 +5,8 @@
 /** Site page types for SPA navigation */
 export type SitePage =
   | 'home' | 'series-detail' | 'category' | 'search'
-  | 'favorites' | 'continue-watching' | 'watchlist';
+  | 'favorites' | 'continue-watching' | 'watchlist'
+  | 'profile' | 'achievements' | 'report' | 'request' | 'watchparty';
 
 /** Series categories */
 export type SeriesCategorySlug =
@@ -124,4 +125,13 @@ export interface SearchResult {
   category: SeriesCategorySlug;
   year: string;
   rating: number;
+}
+
+export interface AchievementBadge {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt: string | null;
+  condition: string;
 }

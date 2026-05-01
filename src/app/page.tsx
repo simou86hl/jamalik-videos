@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Theater, Laugh, Swords, Heart, Globe,
-  Music, Palette, BookOpen, Star,
+  Music, Palette, BookOpen, Star, Baby,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/layout/Navbar';
@@ -26,8 +26,15 @@ import { CategoryPage } from '@/components/pages/CategoryPage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { ContinueWatchingPage } from '@/components/pages/ContinueWatchingPage';
 import { WatchlistPage } from '@/components/pages/WatchlistPage';
+import { ProfilePage } from '@/components/pages/ProfilePage';
+import { AchievementsPage } from '@/components/pages/AchievementsPage';
+import { WeeklyReportPage } from '@/components/pages/WeeklyReportPage';
+import { WatchPartyPage } from '@/components/pages/WatchPartyPage';
+import { RequestSeriesModal } from '@/components/shared/RequestSeriesModal';
 import { useSmartPrefetch } from '@/hooks/useSmartPrefetch';
 import { CATEGORY_COLORS } from '@/lib/constants';
+import { SparkleEffect } from '@/components/shared/SparkleEffect';
+import type { SitePage } from '@/types';
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, scale: 0.995 },
@@ -46,9 +53,17 @@ const pageVariants = {
 };
 
 export default function Home() {
-  const { currentPage, toggleMobileMenu } = useStore();
+  const { currentPage, toggleMobileMenu, isKidsMode, toggleKidsMode } = useStore();
   const touchStartX = useRef<number | null>(null);
   const isEdgeSwipe = useRef(false);
+  const [isRequestOpen, setIsRequestOpen] = useState(false);
+
+  // Handle request page as modal
+  useEffect(() => {
+    if (currentPage === 'request') {
+      setIsRequestOpen(true);
+    }
+  }, [currentPage]);
 
   // Smart Prefetching
   useSmartPrefetch();
@@ -133,67 +148,98 @@ export default function Home() {
               exit="exit"
             >
               <PullToRefresh>
-                <div className="pt-2 sm:pt-4">
-                  <HeroSlider />
-                </div>
+                {/* Kids Mode Banner */}
+                {isKidsMode && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-white flex items-center gap-3"
+                  >
+                    <Baby className="h-6 w-6 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold">وضع الأطفال مفعّل</p>
+                      <p className="text-[10px] opacity-80">محتوى مناسب للأطفال فقط</p>
+                    </div>
+                    <button
+                      onClick={toggleKidsMode}
+                      className="mr-auto text-[10px] underline opacity-80 hover:opacity-100 cursor-pointer flex-shrink-0"
+                    >
+                      إيقاف
+                    </button>
+                  </motion.div>
+                )}
 
-                {/* Search Bar */}
-                <div className="mb-4">
-                  <SearchBar />
-                </div>
+                {!isKidsMode && (
+                  <>
+                    <div className="pt-2 sm:pt-4 relative">
+                      <HeroSlider />
+                      <SparkleEffect count={12} />
+                    </div>
 
-                <ContinueWatching />
-                <FeaturedSeries />
-                <RecentlyAdded />
-                <MostWatched />
-                <BroadcastSchedule />
+                    {/* Search Bar */}
+                    <div className="mb-4">
+                      <SearchBar />
+                    </div>
 
-                {/* Category sections with accent colors */}
-                <CategorySection
-                  title="مسلسلات تركية"
-                  category="turkish"
-                  icon={<Globe className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="دراما كورية"
-                  category="korean"
-                  icon={<Star className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="دراما عربية"
-                  category="drama"
-                  icon={<Theater className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="مسلسلات هندية"
-                  category="indian"
-                  icon={<Music className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="كوميدي"
-                  category="comedy"
-                  icon={<Laugh className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="أكشن وإثارة"
-                  category="action"
-                  icon={<Swords className="h-4 w-4" />}
-                />
-                <CategorySection
-                  title="رومانسي"
-                  category="romantic"
-                  icon={<Heart className="h-4 w-4" />}
-                />
+                    <ContinueWatching />
+                    <FeaturedSeries />
+                    <RecentlyAdded />
+                    <MostWatched />
+                    <BroadcastSchedule />
+
+                    {/* Category sections with accent colors */}
+                    <CategorySection
+                      title="مسلسلات تركية"
+                      category="turkish"
+                      icon={<Globe className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="دراما كورية"
+                      category="korean"
+                      icon={<Star className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="دراما عربية"
+                      category="drama"
+                      icon={<Theater className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="مسلسلات هندية"
+                      category="indian"
+                      icon={<Music className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="كوميدي"
+                      category="comedy"
+                      icon={<Laugh className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="أكشن وإثارة"
+                      category="action"
+                      icon={<Swords className="h-4 w-4" />}
+                    />
+                    <CategorySection
+                      title="رومانسي"
+                      category="romantic"
+                      icon={<Heart className="h-4 w-4" />}
+                    />
+                  </>
+                )}
+
+                {/* Always show cartoon section (and only this in kids mode) */}
                 <CategorySection
                   title="رسوم متحركة"
                   category="cartoon"
                   icon={<Palette className="h-4 w-4" />}
                 />
-                <CategorySection
-                  title="وثائقيات"
-                  category="documentary"
-                  icon={<BookOpen className="h-4 w-4" />}
-                />
+
+                {!isKidsMode && (
+                  <CategorySection
+                    title="وثائقيات"
+                    category="documentary"
+                    icon={<BookOpen className="h-4 w-4" />}
+                  />
+                )}
               </PullToRefresh>
             </motion.div>
           )}
@@ -256,6 +302,64 @@ export default function Home() {
             >
               <WatchlistPage />
             </motion.div>
+          )}
+
+          {currentPage === 'profile' && (
+            <motion.div
+              key="profile"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <ProfilePage />
+            </motion.div>
+          )}
+
+          {currentPage === 'achievements' && (
+            <motion.div
+              key="achievements"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <AchievementsPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'report' && (
+            <motion.div
+              key="report"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <WeeklyReportPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'watchparty' && (
+            <motion.div
+              key="watchparty"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <WatchPartyPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'request' && (
+            <RequestSeriesModal
+              isOpen={isRequestOpen}
+              onClose={() => {
+                setIsRequestOpen(false);
+                useStore.getState().goBack();
+              }}
+            />
           )}
         </AnimatePresence>
       </main>

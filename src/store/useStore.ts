@@ -6,6 +6,7 @@ import type {
   Series,
   WatchProgress,
   WatchlistItem,
+  AchievementBadge,
 } from '@/types';
 
 interface MusalsalatStore {
@@ -24,6 +25,7 @@ interface MusalsalatStore {
   // UI
   isMobileMenuOpen: boolean;
   isDarkMode: boolean;
+  isKidsMode: boolean;
 
   // Favorites
   favorites: string[];
@@ -43,6 +45,9 @@ interface MusalsalatStore {
   // Watchlist
   watchlist: WatchlistItem[];
 
+  // Achievements
+  achievements: AchievementBadge[];
+
   // Actions
   navigateTo: (page: SitePage) => void;
   goBack: () => void;
@@ -53,6 +58,7 @@ interface MusalsalatStore {
   closeSearch: () => void;
   toggleMobileMenu: () => void;
   toggleDarkMode: () => void;
+  toggleKidsMode: () => void;
   toggleFavorite: (seriesId: string) => void;
   isFavorite: (seriesId: string) => boolean;
   updateWatchProgress: (progress: WatchProgress) => void;
@@ -72,6 +78,10 @@ interface MusalsalatStore {
   addToWatchlist: (item: WatchlistItem) => void;
   removeFromWatchlist: (seriesId: string, seasonNum: number, epNum: number) => void;
   isInWatchlist: (seriesId: string, seasonNum: number, epNum: number) => boolean;
+
+  // Achievements
+  unlockAchievement: (id: string) => void;
+  getAchievements: () => AchievementBadge[];
 }
 
 export const useStore = create<MusalsalatStore>()(
@@ -92,6 +102,7 @@ export const useStore = create<MusalsalatStore>()(
       // UI
       isMobileMenuOpen: false,
       isDarkMode: false,
+      isKidsMode: false,
 
       // Favorites
       favorites: [],
@@ -110,6 +121,18 @@ export const useStore = create<MusalsalatStore>()(
 
       // Watchlist
       watchlist: [],
+
+      // Achievements
+      achievements: [
+        { id: 'first-watch', title: 'المشاهدة الأولى', description: 'شاهد أول حلقة', icon: 'Eye', unlockedAt: null, condition: 'first-watch' },
+        { id: 'binge-5', title: 'ماري ماراثون', description: 'شاهد 5 حلقات في يوم', icon: 'Zap', unlockedAt: null, condition: 'binge-5' },
+        { id: 'ten-series', title: 'مستكشف', description: 'شاهد 10 مسلسلات مختلفة', icon: 'Compass', unlockedAt: null, condition: 'ten-series' },
+        { id: 'first-rating', title: 'ناقد', description: 'قيّم أول مسلسل', icon: 'Star', unlockedAt: null, condition: 'first-rating' },
+        { id: 'five-favorites', title: 'محب المسلسلات', description: 'أضف 5 مسلسلات للمفضلة', icon: 'Heart', unlockedAt: null, condition: 'five-favorites' },
+        { id: 'night-owl', title: 'بومة الليل', description: 'شاهد بعد منتصف الليل', icon: 'Moon', unlockedAt: null, condition: 'night-owl' },
+        { id: 'explorer', title: 'مغامر', description: 'تصفح جميع التصنيفات', icon: 'Map', unlockedAt: null, condition: 'explorer' },
+        { id: 'loyal', title: 'مخلص', description: 'أكمل 20 حلقة من مسلسل واحد', icon: 'Award', unlockedAt: null, condition: 'loyal' },
+      ],
 
       // Actions
       navigateTo: (page) => {
@@ -158,6 +181,9 @@ export const useStore = create<MusalsalatStore>()(
 
       toggleDarkMode: () =>
         set((state) => ({ isDarkMode: !state.isDarkMode })),
+
+      toggleKidsMode: () =>
+        set((state) => ({ isKidsMode: !state.isKidsMode })),
 
       toggleFavorite: (seriesId) =>
         set((state) => ({
@@ -230,6 +256,16 @@ export const useStore = create<MusalsalatStore>()(
         get().watchlist.some(
           (w) => w.seriesId === seriesId && w.seasonNumber === seasonNum && w.episodeNumber === epNum
         ),
+
+      // Achievements
+      unlockAchievement: (id) =>
+        set((state) => ({
+          achievements: state.achievements.map((a) =>
+            a.id === id ? { ...a, unlockedAt: new Date().toISOString() } : a
+          ),
+        })),
+
+      getAchievements: () => get().achievements,
     }),
     {
       name: 'musalsalat-storage',
@@ -238,9 +274,11 @@ export const useStore = create<MusalsalatStore>()(
         watchProgress: state.watchProgress,
         userRatings: state.userRatings,
         isDarkMode: state.isDarkMode,
+        isKidsMode: state.isKidsMode,
         categoryViews: state.categoryViews,
         broadcastReminders: state.broadcastReminders,
         watchlist: state.watchlist,
+        achievements: state.achievements,
       }),
     }
   )

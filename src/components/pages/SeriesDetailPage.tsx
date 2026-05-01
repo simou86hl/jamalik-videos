@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Heart, Share2, Play, Clock, Calendar,
   Star, ChevronLeft, ChevronRight, Film, Users, Globe,
   MapPin, Mic2, X, PictureInPicture2, Bookmark, BookmarkCheck,
+  Gauge, RotateCcw, Repeat, Zap,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ALL_SERIES } from '@/data/seriesData';
@@ -14,6 +15,10 @@ import { SeriesCard } from '@/components/shared/SeriesCard';
 import { RatingStars } from '@/components/shared/RatingStars';
 import { cn } from '@/lib/utils';
 import type { Episode, Season } from '@/types';
+
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const EPISODE_DURATION_SECONDS = 2700; // 45 minutes
+const BINGE_COUNTDOWN_SECONDS = 5;
 
 export function SeriesDetailPage() {
   const {
@@ -32,8 +37,57 @@ export function SeriesDetailPage() {
 
   const [selectedSeasonIdx, setSelectedSeasonIdx] = useState(0);
   const [playingEpisode, setPlayingEpisode] = useState<Episode | null>(null);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
+  const [bingeMode, setBingeMode] = useState(false);
+  const [bingeCountdown, setBingeCountdown] = useState<number | null>(null);
   const episodesRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+  const speedDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close speed dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (speedDropdownRef.current && !speedDropdownRef.current.contains(e.target as Node)) {
+        setSpeedDropdownOpen(false);
+      }
+    };
+    if (speedDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [speedDropdownOpen]);
+
+  // Binge mode countdown
+  const cancelBingeCountdown = useCallback(() => {
+    setBingeCountdown(null);
+  }, []);
+
+  useEffect(() => {
+    if (!bingeMode || !playingEpisode) {
+      setBingeCountdown(null);
+      return;
+    }
+
+    // Start countdown when episode starts playing
+    setBingeCountdown(BINGE_COUNTDOWN_SECONDS);
+
+    const interval = setInterval(() => {
+      setBingeCountdown((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) {
+          clearInterval(interval);
+          // Auto-advance to next episode
+          navigateEpisode('next');
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playingEpisode, bingeMode]);
 
   if (!series) {
     return (
@@ -50,8 +104,16 @@ export function SeriesDetailPage() {
   const seasons: Season[] = series.seasons;
   const currentSeason = seasons[selectedSeasonIdx] || seasons[0];
 
+  // Get progress for current playing episode
+  const playingEpisodeProgress = playingEpisode
+    ? getWatchProgress(series.id, currentSeason.number, playingEpisode.number)
+    : undefined;
+  const resumeTimestamp = playingEpisodeProgress?.timestamp || 0;
+  const resumePercent = resumeTimestamp > 0 ? (resumeTimestamp / EPISODE_DURATION_SECONDS) * 100 : 0;
+
   const handlePlayEpisode = (episode: Episode) => {
     setPlayingEpisode(episode);
+    setBingeCountdown(null); // Reset countdown on new episode
     updateWatchProgress({
       seriesId: series.id,
       seasonNumber: currentSeason.number,
@@ -67,6 +129,18 @@ export function SeriesDetailPage() {
     setTimeout(() => {
       playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 300);
+  };
+
+  const handleResetResume = () => {
+    if (playingEpisode) {
+      updateWatchProgress({
+        seriesId: series.id,
+        seasonNumber: currentSeason.number,
+        episodeNumber: playingEpisode.number,
+        timestamp: 0,
+        lastWatched: new Date().toISOString(),
+      });
+    }
   };
 
   const navigateEpisode = (direction: 'prev' | 'next') => {
@@ -102,11 +176,14 @@ export function SeriesDetailPage() {
 
   return (
     <div className="pb-8">
-      {/* Backdrop */}
+      {/* Backdrop with Ken Burns effect */}
       <div className="relative h-[300px] sm:h-[400px] -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${series.backdrop})` }}
+          style={{
+            backgroundImage: `url(${series.backdrop})`,
+            animation: 'kenBurns 20s ease-in-out infinite alternate',
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
@@ -222,6 +299,21 @@ export function SeriesDetailPage() {
               >
                 <Share2 className="h-5 w-5" />
               </button>
+
+              {/* Feature 3: Binge Mode Toggle */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setBingeMode(!bingeMode)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all cursor-pointer border',
+                  bingeMode
+                    ? 'bg-primary/10 border-primary text-primary shadow-[var(--shadow-glow)]'
+                    : 'glass-subtle border-transparent text-text-subtle'
+                )}
+              >
+                <Zap className={cn('h-4 w-4', bingeMode && 'fill-primary')} />
+                <span className="hidden sm:inline">تشغيل تلقائي</span>
+              </motion.button>
             </div>
 
             {/* User Rating */}
@@ -242,7 +334,7 @@ export function SeriesDetailPage() {
           </motion.div>
 
           {/* ═══ Video Player ═══ */}
-          <div ref={playerRef} />          
+          <div ref={playerRef} />
           <AnimatePresence>
             {playingEpisode && (
               <motion.div
@@ -265,17 +357,102 @@ export function SeriesDetailPage() {
                       <p className="text-sm font-bold text-text-main">{playingEpisode.title}</p>
                       <p className="text-xs text-text-subtle">{playingEpisode.duration}</p>
                     </div>
+
+                    {/* Feature 2: Resume progress bar */}
+                    {resumeTimestamp > 0 && (
+                      <div className="absolute bottom-0 left-0 right-0">
+                        <div className="h-1 bg-black/30">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min(resumePercent, 100)}%` }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            className="h-full bg-gradient-primary rounded-full"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Feature 2: Resume indicator */}
+                    {resumeTimestamp > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full glass text-[11px] font-bold text-primary"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        استئناف المشاهدة
+                      </motion.div>
+                    )}
                   </div>
 
                   {/* Episode Info */}
                   <div className="p-4 flex items-center justify-between">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <h3 className="text-sm font-bold text-text-main">
                         الموسم {currentSeason.number} - {playingEpisode.title}
                       </h3>
-                      <p className="text-xs text-text-subtle">{playingEpisode.description}</p>
+                      <p className="text-xs text-text-subtle line-clamp-1">{playingEpisode.description}</p>
+                      {/* Feature 1: Playback speed display */}
+                      <p className="text-[11px] text-primary font-bold mt-1">
+                        السرعة: {playbackSpeed}x
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0 mr-3" ref={speedDropdownRef}>
+                      {/* Feature 2: Resume button */}
+                      {resumeTimestamp > 0 && (
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={handleResetResume}
+                          title="استئناف من هنا"
+                          className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors"
+                        >
+                          <RotateCcw className="h-4 w-4 text-accent" />
+                        </motion.button>
+                      )}
+
+                      {/* Feature 1: Speed dropdown */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setSpeedDropdownOpen(!speedDropdownOpen)}
+                          title="سرعات التشغيل"
+                          className={cn(
+                            'w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer transition-colors',
+                            speedDropdownOpen ? 'bg-primary/10' : 'hover:bg-primary/10'
+                          )}
+                        >
+                          <Gauge className="h-4 w-4 text-text-subtle" />
+                        </button>
+                        <AnimatePresence>
+                          {speedDropdownOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute top-full mt-1 left-0 glass-strong rounded-xl p-1.5 shadow-[var(--shadow-lg)] z-20 min-w-[72px]"
+                            >
+                              {PLAYBACK_SPEEDS.map((speed) => (
+                                <button
+                                  key={speed}
+                                  onClick={() => {
+                                    setPlaybackSpeed(speed);
+                                    setSpeedDropdownOpen(false);
+                                  }}
+                                  className={cn(
+                                    'w-full text-right px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer',
+                                    speed === playbackSpeed
+                                      ? 'text-primary bg-primary/10'
+                                      : 'text-text-subtle hover:text-primary hover:bg-primary/5'
+                                  )}
+                                >
+                                  {speed}x
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
                       <button
                         onClick={() => {
                           if (document.pictureInPictureEnabled) {
@@ -293,13 +470,41 @@ export function SeriesDetailPage() {
                         <PictureInPicture2 className="h-4 w-4 text-text-subtle" />
                       </button>
                       <button
-                        onClick={() => setPlayingEpisode(null)}
+                        onClick={() => {
+                          setPlayingEpisode(null);
+                          setBingeCountdown(null);
+                        }}
                         className="w-8 h-8 rounded-full glass-subtle flex items-center justify-center cursor-pointer"
                       >
                         <X className="h-4 w-4 text-text-subtle" />
                       </button>
                     </div>
                   </div>
+
+                  {/* Feature 3: Binge mode countdown */}
+                  <AnimatePresence>
+                    {bingeMode && bingeCountdown !== null && bingeCountdown > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="px-4 pb-3"
+                      >
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
+                          <Repeat className="h-4 w-4 text-primary animate-spin-slow" />
+                          <p className="text-xs text-primary font-bold flex-1">
+                            الحلقة التالية خلال {bingeCountdown}...
+                          </p>
+                          <button
+                            onClick={cancelBingeCountdown}
+                            className="text-[11px] text-text-subtle hover:text-primary px-2 py-1 rounded-lg cursor-pointer transition-colors"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Episode Navigation */}
                   <div className="px-4 pb-4 flex items-center gap-2">
@@ -357,6 +562,7 @@ export function SeriesDetailPage() {
                 const progress = getWatchProgress(series.id, currentSeason.number, episode.number);
                 const isPlaying = playingEpisode?.id === episode.id;
                 const bookmarked = isInWatchlist(series.id, currentSeason.number, episode.number);
+                const hasResumeProgress = (progress?.timestamp || 0) > 0;
 
                 return (
                   <motion.button
@@ -392,7 +598,12 @@ export function SeriesDetailPage() {
                             يعمل الآن
                           </span>
                         )}
-                        {progress && !isPlaying && (
+                        {progress && !isPlaying && hasResumeProgress && (
+                          <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[9px] font-bold flex-shrink-0">
+                            استكمال
+                          </span>
+                        )}
+                        {progress && !isPlaying && !hasResumeProgress && (
                           <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[9px] font-bold flex-shrink-0">
                             مشاهد
                           </span>

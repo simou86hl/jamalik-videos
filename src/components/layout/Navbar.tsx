@@ -6,6 +6,8 @@ import {
   Theater, Laugh, Swords, Globe, Music,
   Palette, BookOpen, ChevronLeft, Clock,
   MonitorPlay, Star, Bookmark,
+  BarChart3, Trophy, CalendarDays, PlusCircle, Users,
+  Baby,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
@@ -36,6 +38,8 @@ export function Navbar() {
     toggleSearch,
     favorites,
     watchlist,
+    isKidsMode,
+    toggleKidsMode,
   } = useStore();
 
   useEffect(() => {
@@ -251,6 +255,11 @@ export function Navbar() {
                         { label: 'المفضلة', page: 'favorites' as SitePage, icon: Heart },
                         { label: 'تابع المشاهدة', page: 'continue-watching' as SitePage, icon: Clock },
                         { label: 'قائمة المشاهدة', page: 'watchlist' as SitePage, icon: Bookmark },
+                        { label: 'ملف المشاهدة', page: 'profile' as SitePage, icon: BarChart3 },
+                        { label: 'الإنجازات', page: 'achievements' as SitePage, icon: Trophy },
+                        { label: 'التقرير الأسبوعي', page: 'report' as SitePage, icon: CalendarDays },
+                        { label: 'طلب مسلسل', page: 'request' as SitePage, icon: PlusCircle },
+                        { label: 'مشاهدة جماعية', page: 'watchparty' as SitePage, icon: Users },
                       ].map((link, i) => {
                         const Icon = link.icon;
                         return (
@@ -279,9 +288,22 @@ export function Navbar() {
                   </div>
                 </div>
 
-                {/* ─── Bottom: Theme ─── */}
+                {/* ─── Bottom: Theme + Kids Mode ─── */}
                 <div className="border-t border-border/30 px-4 py-3 flex items-center gap-2">
                   <ThemeToggle />
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={toggleKidsMode}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer mr-auto',
+                      isKidsMode
+                        ? 'bg-primary/10 text-primary border border-primary/20'
+                        : 'glass-subtle text-text-main hover:text-primary'
+                    )}
+                  >
+                    <Baby className="h-3.5 w-3.5" />
+                    {isKidsMode ? 'وضع الأطفال ✓' : 'وضع الأطفال'}
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
