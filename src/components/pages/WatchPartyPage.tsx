@@ -909,11 +909,11 @@ export function WatchPartyPage() {
         <div className="relative aspect-video">
           {room?.videoId ? (
             <>
-              {/* iframe fallback - ALWAYS works */}
+              {/* iframe - Dailymotion native controls work inside */}
               {useIframe && (
                 <iframe
                   ref={iframeRef}
-                  src={`https://www.dailymotion.com/embed/video/${room.videoId}?autoplay=1&quality=720&api=postMessage&origin=${typeof window !== 'undefined' ? window.location.origin : '*'}`}
+                  src={`https://www.dailymotion.com/embed/video/${room.videoId}?autoplay=1&quality=720`}
                   className="absolute inset-0 w-full h-full border-0"
                   allow="autoplay; fullscreen; encrypted-media"
                   allowFullScreen
@@ -928,18 +928,7 @@ export function WatchPartyPage() {
                 />
               )}
 
-              {/* Loading indicator */}
-              {!playerReady && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-5">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                    className="w-8 h-8 rounded-full border-2 border-white/30 border-t-white"
-                  />
-                </div>
-              )}
-
-              {/* Viewer blocking overlay */}
+              {/* Viewer blocking overlay - ONLY for viewers, NOT admin */}
               {!isAdmin && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-end" style={{ background: 'transparent' }}>
                   <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-[10px] font-bold text-white flex items-center gap-1.5">
@@ -979,82 +968,20 @@ export function WatchPartyPage() {
         </div>
       </div>
 
-      {/* ═══ ADMIN: Video Control Bar ═══ */}
+      {/* ═══ ADMIN: Info Bar ═══ */}
       {isAdmin && room?.videoId && (
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-2.5 rounded-2xl glass-subtle border border-primary/10 mb-2 mx-1"
+          className="flex items-center justify-between px-3 py-2 rounded-2xl glass-subtle border border-primary/10 mb-2 mx-1"
         >
-          {/* Progress bar - clickable to seek */}
-          <div
-            className="w-full h-1.5 rounded-full bg-white/10 mb-2.5 cursor-pointer relative overflow-hidden"
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const ratio = (e.clientX - rect.left) / rect.width;
-              handleSeekTo(ratio * duration);
-            }}
-          >
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-              style={{ width: `${progress}%` }}
-              layout
-            />
+          <div className="flex items-center gap-2">
+            <Crown className="h-4 w-4 text-accent" />
+            <span className="text-[10px] font-bold text-text-main">تحكم بالفيديو من الأزرار داخل المشغل</span>
           </div>
-
-          {/* Time display */}
-          <div className="flex items-center justify-between mb-2 px-0.5">
-            <span className="text-[9px] text-text-muted font-mono">{formatPlayerTime(currentTime)}</span>
-            <span className="text-[9px] text-text-muted font-mono">{formatPlayerTime(duration)}</span>
-          </div>
-
-          {/* Control buttons */}
-          <div className="flex items-center justify-between">
-            {/* Left controls */}
-            <div className="flex items-center gap-1.5">
-              {/* Rewind 10s */}
-              <button
-                onClick={() => handleSeek(-10)}
-                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-              >
-                <SkipBack className="h-4 w-4 text-text-main" />
-              </button>
-
-              {/* Play / Pause - MAIN button */}
-              <button
-                onClick={handlePlayPause}
-                className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center cursor-pointer shadow-[var(--shadow-glow)] active:scale-90 transition-transform"
-              >
-                {isPlaying ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white mr-0.5" />}
-              </button>
-
-              {/* Forward 10s */}
-              <button
-                onClick={() => handleSeek(10)}
-                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-              >
-                <SkipForward className="h-4 w-4 text-text-main" />
-              </button>
-            </div>
-
-            {/* Right controls */}
-            <div className="flex items-center gap-1.5">
-              {/* Status */}
-              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/5">
-                <div className={cn('w-1.5 h-1.5 rounded-full', isPlaying ? 'bg-green-400 animate-pulse' : 'bg-yellow-400')} />
-                <span className="text-[9px] font-medium text-text-subtle">
-                  {isPlaying ? 'يشغل' : 'متوقف'}
-                </span>
-              </div>
-
-              {/* Mute */}
-              <button
-                onClick={handleMute}
-                className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-              >
-                {isMuted ? <VolumeX className="h-4 w-4 text-red-400" /> : <Volume2 className="h-4 w-4 text-text-main" />}
-              </button>
-            </div>
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/5">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-[9px] font-medium text-text-subtle">مباشر</span>
           </div>
         </motion.div>
       )}
