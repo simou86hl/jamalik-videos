@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Play } from 'lucide-react';
+import { Calendar, Clock, Play, Bell, BellRing } from 'lucide-react';
 import { ALL_SERIES } from '@/data/seriesData';
 import { useStore } from '@/store/useStore';
+import { cn } from '@/lib/utils';
 
 const SCHEDULE_DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 const SCHEDULE_TIMES = ['7:00 م', '8:00 م', '8:30 م', '9:00 م', '9:30 م', '10:00 م'];
@@ -16,7 +17,7 @@ function getNextEpisodeInfo(index: number): { day: string; time: string } {
 }
 
 export function BroadcastSchedule() {
-  const { selectSeries } = useStore();
+  const { selectSeries, toggleBroadcastReminder, isBroadcastReminder } = useStore();
   const ongoingSeries = ALL_SERIES.filter((s) => s.status === 'مستمر');
 
   if (ongoingSeries.length === 0) return null;
@@ -42,6 +43,7 @@ export function BroadcastSchedule() {
           const nextEpisodeNum = latestSeason
             ? latestSeason.episodes.length + 1
             : 1;
+          const hasReminder = isBroadcastReminder(series.id);
 
           return (
             <motion.button
@@ -53,6 +55,34 @@ export function BroadcastSchedule() {
               onClick={() => selectSeries(series)}
               className="flex-shrink-0 w-[200px] sm:w-[220px] rounded-2xl glass overflow-hidden cursor-pointer group relative"
             >
+              {/* Bell reminder button - top-left */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleBroadcastReminder(series.id);
+                }}
+                className={cn(
+                  'absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer',
+                  hasReminder
+                    ? 'bg-primary/20 text-primary'
+                    : 'bg-black/30 text-text-subtle hover:text-primary'
+                )}
+                aria-label={hasReminder ? 'إزالة التذكير' : 'تفعيل التذكير'}
+              >
+                {hasReminder ? (
+                  <BellRing className="h-3.5 w-3.5" />
+                ) : (
+                  <Bell className="h-3.5 w-3.5" />
+                )}
+              </button>
+
+              {/* Reminder badge */}
+              {hasReminder && (
+                <span className="absolute top-2 right-2 z-10 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[7px] font-bold">
+                  تذكير مفعل
+                </span>
+              )}
+
               <div className="flex items-center gap-3 p-3">
                 {/* Thumbnail */}
                 <div className="relative w-14 h-20 rounded-lg overflow-hidden flex-shrink-0">

@@ -5,7 +5,7 @@
 /** Site page types for SPA navigation */
 export type SitePage =
   | 'home' | 'series-detail' | 'category' | 'search'
-  | 'favorites' | 'continue-watching';
+  | 'favorites' | 'continue-watching' | 'watchlist';
 
 /** Series categories */
 export type SeriesCategorySlug =
@@ -98,6 +98,16 @@ export interface WatchProgress {
 
 export interface FavoriteItem {
   seriesId: string;
+}
+
+export interface WatchlistItem {
+  seriesId: string;
+  seriesTitle: string;
+  seriesThumbnail: string;
+  seasonNumber: number;
+  episodeNumber: number;
+  episodeTitle: string;
+  addedAt: string;
 }
 
 export interface NavLink {

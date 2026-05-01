@@ -6,9 +6,8 @@ import {
   Theater, Laugh, Swords, Heart, Globe,
   Music, Palette, BookOpen, Tv, Star, ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import { CATEGORIES } from '@/lib/constants';
 import { useStore } from '@/store/useStore';
-import { cn } from '@/lib/utils';
+import { cn, getSmartCategories } from '@/lib/utils';
 import type { SeriesCategorySlug } from '@/types';
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -112,7 +111,7 @@ export function CategoryBar({ showAll = false, sticky = false }: CategoryBarProp
             </motion.button>
           )}
 
-          {CATEGORIES.map((cat) => {
+          {getSmartCategories().map((cat) => {
             const Icon = CATEGORY_ICONS[cat.icon] || Tv;
             const isActive = selectedCategory === cat.slug;
 

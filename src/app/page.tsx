@@ -25,6 +25,8 @@ import { SeriesDetailPage } from '@/components/pages/SeriesDetailPage';
 import { CategoryPage } from '@/components/pages/CategoryPage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { ContinueWatchingPage } from '@/components/pages/ContinueWatchingPage';
+import { WatchlistPage } from '@/components/pages/WatchlistPage';
+import { useSmartPrefetch } from '@/hooks/useSmartPrefetch';
 import { CATEGORY_COLORS } from '@/lib/constants';
 
 const pageVariants = {
@@ -44,18 +46,41 @@ const pageVariants = {
 };
 
 export default function Home() {
-  const { currentPage } = useStore();
+  const { currentPage, toggleMobileMenu } = useStore();
   const touchStartX = useRef<number | null>(null);
+  const isEdgeSwipe = useRef(false);
+
+  // Smart Prefetching
+  useSmartPrefetch();
 
   // Swipe navigation handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+
+    // Check if this is an edge swipe (right edge for RTL)
+    const touchX = e.touches[0].clientX;
+    const distFromRight = window.innerWidth - touchX;
+    if (distFromRight < 25) {
+      isEdgeSwipe.current = true;
+    } else {
+      isEdgeSwipe.current = false;
+    }
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const endX = e.changedTouches[0].clientX;
     const diff = touchStartX.current - endX;
+
+    // Edge swipe: open mobile menu
+    if (isEdgeSwipe.current && diff > 60) {
+      toggleMobileMenu();
+      touchStartX.current = null;
+      isEdgeSwipe.current = false;
+      return;
+    }
+
+    isEdgeSwipe.current = false;
 
     // Find the closest overflow-x-auto container from the touch point
     const touchY = e.changedTouches[0].clientY;
@@ -81,10 +106,14 @@ export default function Home() {
     }
 
     touchStartX.current = null;
-  }, []);
+  }, [toggleMobileMenu]);
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col relative overflow-x-hidden">
+    <div
+      className="min-h-screen bg-bg flex flex-col relative overflow-x-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Subtle pattern overlay */}
       <div className="fixed inset-0 pattern-dots opacity-[0.03] pointer-events-none z-0" />
 
@@ -102,8 +131,6 @@ export default function Home() {
               initial="initial"
               animate="animate"
               exit="exit"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
             >
               <PullToRefresh>
                 <div className="pt-2 sm:pt-4">
@@ -216,6 +243,18 @@ export default function Home() {
               exit="exit"
             >
               <ContinueWatchingPage />
+            </motion.div>
+          )}
+
+          {currentPage === 'watchlist' && (
+            <motion.div
+              key="watchlist"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <WatchlistPage />
             </motion.div>
           )}
         </AnimatePresence>

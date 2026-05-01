@@ -5,7 +5,7 @@ import {
   Search, Menu, X, Heart, Home, Tv,
   Theater, Laugh, Swords, Globe, Music,
   Palette, BookOpen, ChevronLeft, Clock,
-  MonitorPlay, Star,
+  MonitorPlay, Star, Bookmark,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
@@ -35,6 +35,7 @@ export function Navbar() {
     toggleMobileMenu,
     toggleSearch,
     favorites,
+    watchlist,
   } = useStore();
 
   useEffect(() => {
@@ -249,6 +250,7 @@ export function Navbar() {
                       {[
                         { label: 'المفضلة', page: 'favorites' as SitePage, icon: Heart },
                         { label: 'تابع المشاهدة', page: 'continue-watching' as SitePage, icon: Clock },
+                        { label: 'قائمة المشاهدة', page: 'watchlist' as SitePage, icon: Bookmark },
                       ].map((link, i) => {
                         const Icon = link.icon;
                         return (
@@ -264,6 +266,11 @@ export function Navbar() {
                               <Icon className="h-3 w-3" />
                             </div>
                             {link.label}
+                            {link.page === 'watchlist' && watchlist.length > 0 && (
+                              <span className="mr-auto px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-bold">
+                                {watchlist.length}
+                              </span>
+                            )}
                             <ChevronLeft className="h-3 w-3 mr-auto opacity-30" />
                           </motion.button>
                         );

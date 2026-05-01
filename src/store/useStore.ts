@@ -5,6 +5,7 @@ import type {
   SeriesCategorySlug,
   Series,
   WatchProgress,
+  WatchlistItem,
 } from '@/types';
 
 interface MusalsalatStore {
@@ -33,6 +34,15 @@ interface MusalsalatStore {
   // User ratings
   userRatings: Record<string, number>;
 
+  // Category views (Smart Categories)
+  categoryViews: Record<string, number>;
+
+  // Broadcast reminders
+  broadcastReminders: string[];
+
+  // Watchlist
+  watchlist: WatchlistItem[];
+
   // Actions
   navigateTo: (page: SitePage) => void;
   goBack: () => void;
@@ -50,6 +60,18 @@ interface MusalsalatStore {
   getContinueWatching: () => WatchProgress[];
   submitRating: (seriesId: string, rating: number) => void;
   getUserRating: (seriesId: string) => number;
+
+  // Smart Categories
+  incrementCategoryView: (category: string) => void;
+
+  // Broadcast Reminders
+  toggleBroadcastReminder: (seriesId: string) => void;
+  isBroadcastReminder: (seriesId: string) => boolean;
+
+  // Watchlist
+  addToWatchlist: (item: WatchlistItem) => void;
+  removeFromWatchlist: (seriesId: string, seasonNum: number, epNum: number) => void;
+  isInWatchlist: (seriesId: string, seasonNum: number, epNum: number) => boolean;
 }
 
 export const useStore = create<MusalsalatStore>()(
@@ -79,6 +101,15 @@ export const useStore = create<MusalsalatStore>()(
 
       // User ratings
       userRatings: {},
+
+      // Category views (Smart Categories)
+      categoryViews: {},
+
+      // Broadcast reminders
+      broadcastReminders: [],
+
+      // Watchlist
+      watchlist: [],
 
       // Actions
       navigateTo: (page) => {
@@ -163,6 +194,42 @@ export const useStore = create<MusalsalatStore>()(
 
       getUserRating: (seriesId) =>
         get().userRatings[seriesId] || 0,
+
+      // Smart Categories
+      incrementCategoryView: (category) =>
+        set((state) => ({
+          categoryViews: {
+            ...state.categoryViews,
+            [category]: (state.categoryViews[category] || 0) + 1,
+          },
+        })),
+
+      // Broadcast Reminders
+      toggleBroadcastReminder: (seriesId) =>
+        set((state) => ({
+          broadcastReminders: state.broadcastReminders.includes(seriesId)
+            ? state.broadcastReminders.filter((id) => id !== seriesId)
+            : [...state.broadcastReminders, seriesId],
+        })),
+
+      isBroadcastReminder: (seriesId) =>
+        get().broadcastReminders.includes(seriesId),
+
+      // Watchlist
+      addToWatchlist: (item) =>
+        set((state) => ({ watchlist: [...state.watchlist, item] })),
+
+      removeFromWatchlist: (seriesId, seasonNum, epNum) =>
+        set((state) => ({
+          watchlist: state.watchlist.filter(
+            (w) => !(w.seriesId === seriesId && w.seasonNumber === seasonNum && w.episodeNumber === epNum)
+          ),
+        })),
+
+      isInWatchlist: (seriesId, seasonNum, epNum) =>
+        get().watchlist.some(
+          (w) => w.seriesId === seriesId && w.seasonNumber === seasonNum && w.episodeNumber === epNum
+        ),
     }),
     {
       name: 'musalsalat-storage',
@@ -171,6 +238,9 @@ export const useStore = create<MusalsalatStore>()(
         watchProgress: state.watchProgress,
         userRatings: state.userRatings,
         isDarkMode: state.isDarkMode,
+        categoryViews: state.categoryViews,
+        broadcastReminders: state.broadcastReminders,
+        watchlist: state.watchlist,
       }),
     }
   )

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Heart, Share2, Play, Clock, Calendar,
   Star, ChevronLeft, ChevronRight, Film, Users, Globe,
-  MapPin, Mic2, X, PictureInPicture2,
+  MapPin, Mic2, X, PictureInPicture2, Bookmark, BookmarkCheck,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ALL_SERIES } from '@/data/seriesData';
@@ -25,6 +25,9 @@ export function SeriesDetailPage() {
     getWatchProgress,
     submitRating,
     getUserRating,
+    isInWatchlist,
+    addToWatchlist,
+    removeFromWatchlist,
   } = useStore();
 
   const [selectedSeasonIdx, setSelectedSeasonIdx] = useState(0);
@@ -56,6 +59,11 @@ export function SeriesDetailPage() {
       timestamp: 0,
       lastWatched: new Date().toISOString(),
     });
+
+    // Increment category view for smart categories
+    const store = useStore.getState();
+    store.incrementCategoryView(series.category);
+
     setTimeout(() => {
       playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 300);
@@ -74,6 +82,23 @@ export function SeriesDetailPage() {
   const similarSeries = ALL_SERIES.filter(
     (s) => s.category === series.category && s.id !== series.id
   ).slice(0, 5);
+
+  const handleToggleWatchlist = (episode: Episode, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInWatchlist(series.id, currentSeason.number, episode.number)) {
+      removeFromWatchlist(series.id, currentSeason.number, episode.number);
+    } else {
+      addToWatchlist({
+        seriesId: series.id,
+        seriesTitle: series.title,
+        seriesThumbnail: series.thumbnail,
+        seasonNumber: currentSeason.number,
+        episodeNumber: episode.number,
+        episodeTitle: episode.title,
+        addedAt: new Date().toISOString(),
+      });
+    }
+  };
 
   return (
     <div className="pb-8">
@@ -331,6 +356,7 @@ export function SeriesDetailPage() {
               {currentSeason.episodes.map((episode) => {
                 const progress = getWatchProgress(series.id, currentSeason.number, episode.number);
                 const isPlaying = playingEpisode?.id === episode.id;
+                const bookmarked = isInWatchlist(series.id, currentSeason.number, episode.number);
 
                 return (
                   <motion.button
@@ -383,6 +409,25 @@ export function SeriesDetailPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Bookmark button */}
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={(e) => handleToggleWatchlist(episode, e)}
+                      className={cn(
+                        'w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer flex-shrink-0',
+                        bookmarked
+                          ? 'text-primary'
+                          : 'text-text-subtle/50 hover:text-primary/70'
+                      )}
+                      aria-label={bookmarked ? 'إزالة من القائمة' : 'أضف للقائمة'}
+                    >
+                      {bookmarked ? (
+                        <BookmarkCheck className="h-4 w-4" />
+                      ) : (
+                        <Bookmark className="h-4 w-4" />
+                      )}
+                    </motion.button>
                   </motion.button>
                 );
               })}

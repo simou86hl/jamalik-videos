@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { CATEGORIES } from '@/lib/constants';
+import { useStore } from '@/store/useStore';
 
 /**
  * Merge Tailwind CSS classes with clsx and tailwind-merge
@@ -77,6 +79,22 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
+}
+
+/**
+ * Get smart categories sorted by user view count
+ */
+export function getSmartCategories() {
+  const { categoryViews } = useStore.getState();
+  const hasViews = Object.keys(categoryViews).length > 0;
+  if (!hasViews) return CATEGORIES;
+
+  return [...CATEGORIES].sort((a, b) => {
+    const aViews = categoryViews[a.slug] || 0;
+    const bViews = categoryViews[b.slug] || 0;
+    if (aViews === 0 && bViews === 0) return a.order - b.order;
+    return bViews - aViews;
+  });
 }
 
 /**
