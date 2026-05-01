@@ -32,7 +32,7 @@ export function RequestSeriesModal({ isOpen, onClose }: RequestSeriesModalProps)
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]" onClick={onClose} />
           <motion.div initial={{ opacity: 0, y: '100%' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-            className="fixed bottom-0 left-0 right-0 z-[61] max-h-[85vh] rounded-t-3xl glass-strong overflow-hidden">
+            className="fixed bottom-0 left-0 right-0 z-[61] max-h-[80vh] rounded-t-3xl glass-strong overflow-hidden safe-area-bottom" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px) + 4.5rem)' }}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
               <h3 className="text-base font-bold text-text-main flex items-center gap-2">
                 <PlusCircle className="h-4 w-4 text-primary" />
@@ -52,7 +52,7 @@ export function RequestSeriesModal({ isOpen, onClose }: RequestSeriesModalProps)
                 <p className="text-sm text-text-subtle mt-1">سنحاول إضافة المسلسل في أقرب وقت</p>
               </div>
             ) : (
-              <div className="p-5 space-y-4">
+              <div className="p-5 space-y-4 pb-2">
                 <div>
                   <p className="text-xs font-bold text-text-main mb-2">اسم المسلسل *</p>
                   <input type="text" value={seriesName} onChange={e => setSeriesName(e.target.value)}
@@ -66,8 +66,9 @@ export function RequestSeriesModal({ isOpen, onClose }: RequestSeriesModalProps)
                     placeholder="البلد، السنة، الممثلين..." />
                 </div>
                 <button onClick={handleSubmit} disabled={!seriesName.trim()}
-                  className="btn-primary w-full flex items-center justify-center gap-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Send className="h-4 w-4" />
+                  className="w-full flex items-center justify-center gap-2.5 text-base font-bold text-white rounded-2xl py-4 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-[0_6px_24px_rgba(194,24,91,0.35)] active:scale-[0.98] transition-transform"
+                  style={{ background: 'var(--gradient-primary)' }}>
+                  <Send className="h-5 w-5" />
                   إرسال الطلب
                 </button>
               </div>
