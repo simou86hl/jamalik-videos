@@ -65,8 +65,8 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
           </div>
         </div>
 
-        {/* Title - BELOW image, full width, no truncation */}
-        <h3 className="text-[11px] font-bold text-text-main leading-tight line-clamp-2 text-right">
+        {/* Title - BELOW image, single line */}
+        <h3 className="text-[8px] font-medium text-text-main leading-none truncate text-right block w-full">
           {series.title}
         </h3>
 
@@ -130,7 +130,7 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
 
         {/* Bottom Info */}
         <div className="absolute bottom-0 left-0 right-0 p-2.5">
-          <h3 className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-0.5">
+          <h3 className="text-[9px] font-bold text-white truncate mb-0.5">
             {series.title}
           </h3>
           <div className="flex items-center gap-2">

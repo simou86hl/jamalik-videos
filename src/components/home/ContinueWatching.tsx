@@ -54,7 +54,7 @@ export function ContinueWatching() {
 
                 {/* Bottom Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                  <p className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-1">
+                  <p className="text-[9px] font-bold text-white truncate mb-1">
                     {series.title}
                   </p>
                   <p className="text-[9px] text-white/60 mb-1.5">

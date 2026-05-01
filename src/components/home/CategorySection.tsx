@@ -80,7 +80,7 @@ function PosterCard({ series }: { series: Series }) {
 
         {/* Bottom Info */}
         <div className="absolute bottom-0 left-0 right-0 p-2">
-          <h3 className="text-[11px] sm:text-xs font-bold text-white line-clamp-1 mb-0.5">
+          <h3 className="text-[9px] font-bold text-white truncate mb-0.5">
             {series.title}
           </h3>
           <div className="flex items-center gap-1.5">
