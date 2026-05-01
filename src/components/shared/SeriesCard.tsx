@@ -32,7 +32,7 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
         className="w-full cursor-pointer group"
       >
         {/* Image */}
-        <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-1.5">
+        <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-0.5">
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
             style={{ backgroundImage: `url(${series.thumbnail})` }}
@@ -65,17 +65,37 @@ export function SeriesCard({ series, size = 'sm' }: SeriesCardProps) {
           </div>
         </div>
 
-        {/* Title - BELOW image, single line */}
-        <h3 className="text-[7px] font-medium text-text-main leading-none truncate text-right block w-full">
-          {series.title}
-        </h3>
+        {/* Title - wider container scaled down: text gets more room, less truncation */}
+        <div
+          className="overflow-hidden"
+          style={{
+            transform: 'scale(0.65)',
+            transformOrigin: 'top right',
+            width: 'calc(100% / 0.65)',
+            marginBottom: '-5px',
+            lineHeight: '1.3'
+          }}
+        >
+          <h3 className="text-[10px] font-medium text-text-main truncate text-right block whitespace-nowrap">
+            {series.title}
+          </h3>
+        </div>
 
-        {/* Rating + Year */}
-        <div className="flex items-center gap-0.5 mt-0.5">
-          <Star className="h-2 w-2 text-accent fill-accent" />
-          <span className="text-[7px] text-text-subtle">{series.rating.average}</span>
-          <span className="text-[6px] text-text-muted">·</span>
-          <span className="text-[7px] text-text-subtle">{series.year}</span>
+        {/* Rating + Year - same trick */}
+        <div
+          style={{
+            transform: 'scale(0.65)',
+            transformOrigin: 'top left',
+            width: 'calc(100% / 0.65)',
+            lineHeight: '1.3'
+          }}
+        >
+          <div className="flex items-center gap-0.5">
+            <Star className="h-2 w-2 text-accent fill-accent" />
+            <span className="text-[9px] text-text-subtle">{series.rating.average}</span>
+            <span className="text-[8px] text-text-muted">·</span>
+            <span className="text-[9px] text-text-subtle">{series.year}</span>
+          </div>
         </div>
       </motion.button>
     );
