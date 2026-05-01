@@ -352,17 +352,17 @@ export default function Home() {
             </motion.div>
           )}
 
-          {currentPage === 'request' && (
-            <RequestSeriesModal
-              isOpen={isRequestOpen}
-              onClose={() => {
-                setIsRequestOpen(false);
-                useStore.getState().goBack();
-              }}
-            />
-          )}
         </AnimatePresence>
       </main>
+
+      {/* Request Series Modal - rendered outside main to avoid z-index stacking issues */}
+      <RequestSeriesModal
+        isOpen={isRequestOpen}
+        onClose={() => {
+          setIsRequestOpen(false);
+          useStore.getState().goBack();
+        }}
+      />
 
       <SearchModal />
       <BackToTop />
