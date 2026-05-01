@@ -95,7 +95,7 @@ export function CategoryPage() {
           <p className="text-text-subtle">لا توجد مسلسلات</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2 sm:gap-2.5">
           {filtered.map((series) => (
             <SeriesCard key={series.id} series={series} size="xs" />
           ))}

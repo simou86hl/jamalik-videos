@@ -31,7 +31,7 @@ export function FavoritesPage() {
           <p className="text-text-subtle/60 text-xs mt-1">أضف مسلسلات لمشاهدتها لاحقاً</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 sm:gap-2.5">
           {favSeries.map((series) => (
             <SeriesCard key={series.id} series={series} size="xs" />
           ))}
