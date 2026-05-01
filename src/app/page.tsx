@@ -40,18 +40,16 @@ export default function Home() {
   const { currentPage } = useStore();
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col relative">
+    <div className="min-h-screen bg-bg flex flex-col relative overflow-x-hidden">
       {/* Subtle pattern overlay */}
       <div className="fixed inset-0 pattern-dots opacity-[0.03] pointer-events-none z-0" />
 
       <Navbar />
 
-      {/* Category Bar - Sticky below navbar */}
-      <div className="max-w-7xl mx-auto w-full relative z-10">
-        <CategoryBar showAll sticky />
-      </div>
+      {/* Category Bar - Sticky below navbar, full width */}
+      <CategoryBar showAll sticky />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-10">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden">
         <AnimatePresence mode="wait">
           {currentPage === 'home' && (
             <motion.div
