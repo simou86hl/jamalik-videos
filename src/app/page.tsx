@@ -3,22 +3,26 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Theater, Laugh, Swords, Heart, Globe,
-  Music, Palette, BookOpen, Star, TrendingUp, Clock,
+  Music, Palette, BookOpen, Star,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CategoryBar } from '@/components/shared/CategoryBar';
+import { SearchBar } from '@/components/shared/SearchBar';
+import { BackToTop } from '@/components/shared/BackToTop';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { ContinueWatching } from '@/components/home/ContinueWatching';
 import { FeaturedSeries } from '@/components/home/FeaturedSeries';
+import { RecentlyAdded } from '@/components/home/RecentlyAdded';
+import { MostWatched } from '@/components/home/MostWatched';
 import { CategorySection } from '@/components/home/CategorySection';
-import { LatestSeries } from '@/components/home/LatestSeries';
 import { SearchModal } from '@/components/shared/SearchModal';
 import { SeriesDetailPage } from '@/components/pages/SeriesDetailPage';
 import { CategoryPage } from '@/components/pages/CategoryPage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { ContinueWatchingPage } from '@/components/pages/ContinueWatchingPage';
+import { CATEGORY_COLORS } from '@/lib/constants';
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, scale: 0.995 },
@@ -62,54 +66,62 @@ export default function Home() {
               <div className="pt-2 sm:pt-4">
                 <HeroSlider />
               </div>
+
+              {/* Search Bar */}
+              <div className="mb-4">
+                <SearchBar />
+              </div>
+
               <ContinueWatching />
               <FeaturedSeries />
+              <RecentlyAdded />
+              <MostWatched />
 
-              {/* Category sections - all horizontal scroll matching FeaturedSeries style */}
+              {/* Category sections with accent colors */}
               <CategorySection
                 title="مسلسلات تركية"
                 category="turkish"
-                icon={<Globe className="h-5 w-5 text-primary" />}
+                icon={<Globe className="h-4 w-4" />}
               />
               <CategorySection
                 title="دراما كورية"
                 category="korean"
-                icon={<Star className="h-5 w-5 text-primary" />}
+                icon={<Star className="h-4 w-4" />}
               />
               <CategorySection
                 title="دراما عربية"
                 category="drama"
-                icon={<Theater className="h-5 w-5 text-primary" />}
+                icon={<Theater className="h-4 w-4" />}
               />
               <CategorySection
                 title="مسلسلات هندية"
                 category="indian"
-                icon={<Music className="h-5 w-5 text-primary" />}
+                icon={<Music className="h-4 w-4" />}
               />
               <CategorySection
                 title="كوميدي"
                 category="comedy"
-                icon={<Laugh className="h-5 w-5 text-primary" />}
+                icon={<Laugh className="h-4 w-4" />}
               />
               <CategorySection
                 title="أكشن وإثارة"
                 category="action"
-                icon={<Swords className="h-5 w-5 text-primary" />}
+                icon={<Swords className="h-4 w-4" />}
               />
               <CategorySection
                 title="رومانسي"
                 category="romantic"
-                icon={<Heart className="h-5 w-5 text-primary" />}
+                icon={<Heart className="h-4 w-4" />}
               />
               <CategorySection
                 title="رسوم متحركة"
                 category="cartoon"
-                icon={<Palette className="h-5 w-5 text-primary" />}
+                icon={<Palette className="h-4 w-4" />}
               />
               <CategorySection
                 title="وثائقيات"
                 category="documentary"
-                icon={<BookOpen className="h-5 w-5 text-primary" />}
+                icon={<BookOpen className="h-4 w-4" />}
               />
             </motion.div>
           )}
@@ -165,6 +177,7 @@ export default function Home() {
       </main>
 
       <SearchModal />
+      <BackToTop />
       <Footer />
     </div>
   );
