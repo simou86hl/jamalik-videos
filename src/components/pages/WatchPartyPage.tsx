@@ -5,7 +5,6 @@ import {
   Users, Send, X, Play, Smile, Copy, Check,
   Plus, LogIn, Tv, Share2,
   ChevronDown, Sparkles, Crown, Eye,
-  Volume2, VolumeX, Pause,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { cn } from '@/lib/utils';
@@ -71,8 +70,7 @@ function getDailymotionEmbedUrl(url: string): string {
   // Convert regular Dailymotion URL to embed URL
   const match = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
   if (match) {
-    // api=postMessage enables postMessage control, post_origin=* allows messages from any origin
-    return `https://www.dailymotion.com/embed/video/${match[1]}?api=postMessage&post_origin=*&autoplay=1&quality=720&ui-logo=0&ui-start-screen-info=0`;
+    return `https://www.dailymotion.com/embed/video/${match[1]}?autoplay=1&quality=720`;
   }
   return url;
 }
@@ -91,10 +89,6 @@ export function WatchPartyPage() {
   const [showSeriesPicker, setShowSeriesPicker] = useState(false);
   const [selectedSerie, setSelectedSerie] = useState<{ id: string; title: string; slug: string; videoUrl: string } | null>(null);
   const [selectedEpIdx, setSelectedEpIdx] = useState(0);
-  const [isPlayerMuted, setIsPlayerMuted] = useState(false);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-  const playerRef = useRef<HTMLIFrameElement>(null);
-  const currentTimeRef = useRef(0);
   const chatRef = useRef<HTMLDivElement>(null);
   const msgId = useRef(1);
 
@@ -104,11 +98,6 @@ export function WatchPartyPage() {
       const saved = localStorage.getItem('watchparty-room');
       if (saved) {
         const parsed = JSON.parse(saved) as RoomState;
-        // Clear old rooms with wrong api parameter
-        if (parsed.videoUrl && parsed.videoUrl.includes('api=1')) {
-          localStorage.removeItem('watchparty-room');
-          return;
-        }
         setRoom(parsed);
         setIsAdmin(parsed.host === 'أنت');
         setPhase('room');
@@ -174,62 +163,6 @@ export function WatchPartyPage() {
       id: msgId.current++, user: 'النظام', text, time: formatTime(), isMe: false,
     }]);
   }, []);
-
-  // ── Dailymotion postMessage API ──
-  const sendDMCommand = useCallback((method: string, value?: number | string) => {
-    const iframe = playerRef.current;
-    if (!iframe?.contentWindow) return;
-    try {
-      // Send object directly (NOT JSON string) - Dailymotion expects an object
-      iframe.contentWindow.postMessage(
-        { method, value },
-        '*'
-      );
-    } catch (e) {
-      console.warn('Player command failed:', e);
-    }
-  }, []);
-
-  // Listen for player state events from Dailymotion iframe
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.origin !== 'https://www.dailymotion.com') return;
-      try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (data.event === 'playing') setIsVideoPlaying(true);
-        else if (data.event === 'pause') setIsVideoPlaying(false);
-        else if (data.event === 'ended') {
-          setIsVideoPlaying(false);
-          addSystemMessage('انتهت الحلقة! 🎬');
-        }
-        else if (data.event === 'volumechange') {
-          setIsPlayerMuted(data.volume === 0);
-        }
-        // Track current time for relative seeking
-        else if (data.event === 'timeupdate' && typeof data.time === 'number') {
-          currentTimeRef.current = data.time;
-        }
-      } catch {}
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [addSystemMessage]);
-
-  const handleTogglePlayPause = useCallback(() => {
-    sendDMCommand(isVideoPlaying ? 'pause' : 'play');
-    setIsVideoPlaying(!isVideoPlaying);
-  }, [isVideoPlaying, sendDMCommand]);
-
-  const handleToggleMute = useCallback(() => {
-    const newMuted = !isPlayerMuted;
-    sendDMCommand('volume', newMuted ? 0 : 100);
-    setIsPlayerMuted(newMuted);
-  }, [isPlayerMuted, sendDMCommand]);
-
-  const handleSeekRelative = useCallback((seconds: number) => {
-    const newTime = Math.max(0, currentTimeRef.current + seconds);
-    sendDMCommand('seek', newTime);
-  }, [sendDMCommand]);
 
   // Auto scroll chat
   useEffect(() => {
@@ -357,8 +290,6 @@ export function WatchPartyPage() {
     setOnlineCount(1);
     setShowSeriesPicker(false);
     setIsAdmin(true);
-    setIsPlayerMuted(false);
-    setIsVideoPlaying(true);
   };
 
   const changeEpisode = (epIdx: number) => {
@@ -661,7 +592,6 @@ export function WatchPartyPage() {
           {room?.videoUrl ? (
             <>
               <iframe
-                ref={playerRef}
                 key={room.videoUrl}
                 src={room.videoUrl}
                 className="absolute inset-0 w-full h-full"
@@ -670,20 +600,26 @@ export function WatchPartyPage() {
                 style={{ border: 'none', pointerEvents: isAdmin ? 'auto' : 'none' }}
                 title={room.seriesTitle || 'Watch Party'}
               />
-              {/* Viewer overlay - prevents interaction */}
+              {/* Viewer overlay - blocks all interaction */}
               {!isAdmin && (
-                <div className="absolute inset-0 flex items-start justify-end p-2 pointer-events-none z-10">
-                  <div className="px-2.5 py-1 rounded-full glass text-[9px] font-bold text-text-main flex items-center gap-1 pointer-events-none">
-                    <Eye className="h-2.5 w-2.5 text-blue-400" />
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center" style={{ pointerEvents: 'auto', background: 'transparent' }}>
+                  {/* Invisible blocking layer */}
+                  <div className="absolute inset-0" style={{ background: 'transparent' }} />
+                  {/* Visual badge */}
+                  <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-[10px] font-bold text-white flex items-center gap-1.5">
+                    <Eye className="h-3 w-3 text-blue-400" />
                     وضع المشاهدة فقط
+                  </div>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm">
+                    <p className="text-[9px] text-white/80 text-center">المدير يتحكم بالفيديو</p>
                   </div>
                 </div>
               )}
-              {/* Admin floating badge */}
+              {/* Admin badge - doesn't block interaction */}
               {isAdmin && (
-                <div className="absolute top-2 right-2 pointer-events-none z-10">
-                  <span className="px-2 py-0.5 rounded-full bg-accent/80 text-[8px] font-bold text-white flex items-center gap-0.5">
-                    <Crown className="h-2.5 w-2.5" /> مدير - تتحكم بالفيديو
+                <div className="absolute top-2 right-2 z-10" style={{ pointerEvents: 'none' }}>
+                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white flex items-center gap-1">
+                    <Crown className="h-3 w-3 text-yellow-400" /> مدير
                   </span>
                 </div>
               )}
@@ -715,63 +651,6 @@ export function WatchPartyPage() {
           </div>
         </div>
       </div>
-
-      {/* Admin: Video Control Bar - BELOW the video, not overlapping */}
-      {isAdmin && room?.videoUrl && (
-        <motion.div
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 p-2 rounded-xl glass-subtle border border-primary/10 mb-2 mx-1"
-        >
-          {/* Play / Pause */}
-          <button
-            onClick={handleTogglePlayPause}
-            className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center cursor-pointer shadow-[var(--shadow-glow)] active:scale-90 transition-transform"
-          >
-            {isVideoPlaying ? <Pause className="h-5 w-5 text-white" /> : <Play className="h-5 w-5 text-white" />}
-          </button>
-
-          {/* Rewind 10s */}
-          <button
-            onClick={() => handleSeekRelative(-10)}
-            className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-          >
-            <svg className="h-4 w-4 text-text-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12.5 8.5L7 12l5.5 3.5V8.5z" /><path d="M19.5 8.5L14 12l5.5 3.5V8.5z" /><text x="9" y="15" fontSize="7" fill="currentColor" stroke="none">10</text>
-            </svg>
-          </button>
-
-          {/* Forward 10s */}
-          <button
-            onClick={() => handleSeekRelative(10)}
-            className="w-9 h-9 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-          >
-            <svg className="h-4 w-4 text-text-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4.5 8.5L10 12l-5.5 3.5V8.5z" /><path d="M11.5 8.5L17 12l-5.5 3.5V8.5z" /><text x="7" y="15" fontSize="7" fill="currentColor" stroke="none">10</text>
-            </svg>
-          </button>
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-border/50" />
-
-          {/* Mute / Unmute */}
-          <button
-            onClick={handleToggleMute}
-            className="w-10 h-10 rounded-full glass-subtle flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-          >
-            {isPlayerMuted ? <VolumeX className="h-4 w-4 text-red-400" /> : <Volume2 className="h-4 w-4 text-text-main" />}
-          </button>
-
-          {/* Status indicator */}
-          <div className="flex-1" />
-          <div className="flex items-center gap-1.5">
-            <div className={cn('w-2 h-2 rounded-full', isVideoPlaying ? 'bg-green-400 animate-pulse' : 'bg-yellow-400')} />
-            <span className="text-[10px] font-medium text-text-subtle">
-              {isVideoPlaying ? 'جاري التشغيل' : 'متوقف'}
-            </span>
-          </div>
-        </motion.div>
-      )}
 
       {/* Admin: Episode selector */}
       {isAdmin && episodeList.length > 0 && (
