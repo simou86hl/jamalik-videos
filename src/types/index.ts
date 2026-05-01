@@ -1,465 +1,116 @@
 // ============================================================
-// جمالكِ - Jamalik App Type Definitions
+// مسلسلات أونلاين - Musalsalat Online Type Definitions
 // ============================================================
 
-/** Navigation pages in the SPA */
+/** Site page types for SPA navigation */
 export type SitePage =
-  | 'home' | 'category' | 'article' | 'recipe' | 'search'
-  | 'favorites' | 'profile' | 'login' | 'register' | 'admin'
-  | 'about' | 'contact' | 'privacy' | 'quiz' | 'compare'
-  | 'newsletter' | 'referral' | 'reading-mode' | 'skin-quiz'
-  | 'notifications' | 'daily-calendar' | 'videos'
-  // New features
-  | 'ai-chat' | 'ai-recipe' | 'skin-analyzer' | 'style-advisor'
-  | 'gamification' | 'challenges' | 'beauty-dna' | 'habit-tracker'
-  | 'cycle-tracker' | 'community' | 'expert-sessions'
-  | 'product-scanner' | 'recipe-lab' | 'wardrobe' | 'video-studio';
+  | 'home' | 'series-detail' | 'category' | 'search'
+  | 'favorites' | 'continue-watching';
 
-/** Video category slug */
-export type VideoCategorySlug =
-  | 'skincare'
-  | 'beauty'
-  | 'cooking'
-  | 'fitness'
-  | 'fashion'
-  | 'haircare'
-  | 'health'
-  | 'natural';
+/** Series categories */
+export type SeriesCategorySlug =
+  | 'drama'
+  | 'comedy'
+  | 'action'
+  | 'romantic'
+  | 'turkish'
+  | 'indian'
+  | 'cartoon'
+  | 'documentary';
 
-/** Video item */
-export interface VideoItem {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  videoUrl: string;
-  category: VideoCategorySlug;
-  views: number;
-  likes: number;
-  isFeatured: boolean;
-  createdAt: string;
-}
-
-/** Main content categories */
-export type CategorySlug =
-  | 'fashion'
-  | 'cooking'
-  | 'skincare'
-  | 'haircare'
-  | 'fitness'
-  | 'beauty'
-  | 'health'
-  | 'natural';
-
-/** Age groups for content targeting */
-export type AgeGroup = 'all' | 'teen' | 'young' | 'adult' | 'mature';
-
-/** Recipe difficulty levels */
-export type Difficulty = 'سهل' | 'متوسط' | 'صعب';
-
-/** Recipe types */
-export type RecipeType = 'cooking' | 'beauty' | 'haircare' | 'skincare' | 'health';
-
-/** Comment/reaction item type */
-export type FavoriteType = 'article' | 'recipe';
-
-/** Category definition */
-export interface Category {
+export interface SeriesCategory {
   id: string;
   name: string;
-  slug: CategorySlug;
+  slug: SeriesCategorySlug;
   icon: string;
   description: string;
   image: string;
   order: number;
-  subcategories: string[];
 }
 
-/** Article stats (likes, views, shares, comments) */
-export interface ArticleStats {
-  likes: number;
-  views: number;
-  shares: number;
-  comments: number;
-}
+export type SeriesStatus = 'مستمر' | 'مكتمل';
 
-/** Full Article interface */
-export interface Article {
+export interface Episode {
   id: string;
+  number: number;
   title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  thumbnail: string;
-  images: string[];
-  category: CategorySlug;
-  tags: string[];
-  ageGroup: AgeGroup;
-  stats: ArticleStats;
-  author: string;
-  isFeatured: boolean;
-  publishedAt: string;
-  createdAt: string;
-}
-
-/** Recipe ingredient */
-export interface RecipeIngredient {
-  name: string;
-  amount: string;
-  unit: string;
-  optional: boolean;
-}
-
-/** Recipe preparation step */
-export interface RecipeStep {
-  order: number;
-  instruction: string;
-  image: string;
   duration: string;
+  thumbnail: string;
+  videoUrl: string;
+  description: string;
+  airDate: string;
 }
 
-/** Recipe stats */
-export interface RecipeStats {
-  likes: number;
-  saves: number;
-  views: number;
+export interface Season {
+  id: string;
+  number: number;
+  title: string;
+  episodes: Episode[];
+  year: string;
+  description: string;
 }
 
-/** Recipe rating */
-export interface RecipeRating {
+export interface SeriesRating {
   average: number;
   count: number;
 }
 
-/** Full Recipe interface */
-export interface Recipe {
+export interface Series {
   id: string;
   title: string;
   slug: string;
   description: string;
-  type: RecipeType;
   thumbnail: string;
-  images: string[];
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  calories: number;
-  difficulty: Difficulty;
-  suitableFor: string[];
-  resultsTime: string;
-  ingredients: RecipeIngredient[];
-  steps: RecipeStep[];
-  tips: string[];
-  warnings: string[];
-  tags: string[];
-  rating: RecipeRating;
-  stats: RecipeStats;
+  poster: string;
+  backdrop: string;
+  category: SeriesCategorySlug;
+  year: string;
+  status: SeriesStatus;
+  country: string;
+  language: string;
+  director: string;
+  cast: string[];
+  seasons: Season[];
+  rating: SeriesRating;
+  views: number;
   isFeatured: boolean;
+  tags: string[];
   createdAt: string;
 }
 
-/** Comment on article or recipe */
-export interface Comment {
-  id: string;
-  userName: string;
-  content: string;
-  itemId: string;
-  itemType: FavoriteType;
-  likes: number;
-  parentId: string | null;
-  replies: Comment[];
-  createdAt: string;
-}
-
-/** Daily tip */
-export interface Tip {
-  id: string;
-  content: string;
-  category: CategorySlug;
-  icon: string;
-}
-
-/** Skin types */
-export type SkinType = 'oily' | 'dry' | 'combination' | 'sensitive' | 'normal';
-
-/** Body types */
-export type BodyType = 'slim' | 'average' | 'curvy' | 'plus';
-
-/** User preferences */
-export interface UserPreferences {
-  darkMode: boolean;
-  notifications: boolean;
-  newsletter: boolean;
-  fontSize: 'small' | 'medium' | 'large';
-}
-
-/** User profile */
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  image: string;
-  age: number | null;
-  skinType: SkinType | null;
-  bodyType: BodyType | null;
-  interests: CategorySlug[];
-  preferences: UserPreferences;
-  role: 'user' | 'admin';
-}
-
-/** Favorite item */
-export interface FavoriteItem {
-  itemId: string;
-  type: FavoriteType;
-}
-
-/** Hero slide for the homepage slider */
 export interface HeroSlide {
   id: string;
   title: string;
   subtitle: string;
   image: string;
-  category: CategorySlug;
-  link: string;
+  seriesId: string;
+  category: SeriesCategorySlug;
 }
 
-/** Search result item */
-export interface SearchResult {
-  id: string;
-  type: FavoriteType;
-  title: string;
-  excerpt: string;
-  thumbnail: string;
-  category: CategorySlug;
+export interface WatchProgress {
+  seriesId: string;
+  seasonNumber: number;
+  episodeNumber: number;
+  timestamp: number;
+  lastWatched: string;
 }
 
-/** Navigation link */
+export interface FavoriteItem {
+  seriesId: string;
+}
+
 export interface NavLink {
   label: string;
-  slug: CategorySlug | 'home' | 'search' | 'favorites';
+  slug: SeriesCategorySlug | 'home' | 'search' | 'favorites' | 'continue-watching';
   icon?: string;
 }
 
-// ============================================================
-// New Feature Types (Phase 2)
-// ============================================================
-
-// Quiz
-export interface QuizQuestion {
-  id: string;
-  question: string;
-  options: { text: string; score: number }[];
-}
-
-export interface Quiz {
+export interface SearchResult {
   id: string;
   title: string;
   description: string;
-  category: CategorySlug;
-  questions: QuizQuestion[];
-  results: { minScore: number; maxScore: number; title: string; description: string; image: string }[];
-}
-
-// Notification
-export interface Notification {
-  id: string;
-  title: string;
-  content: string;
-  image?: string;
-  read: boolean;
-  category: CategorySlug | 'system';
-  createdAt: string;
-}
-
-// Product comparison
-export interface ProductCompare {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
+  thumbnail: string;
+  category: SeriesCategorySlug;
+  year: string;
   rating: number;
-  image: string;
-  pros: string[];
-  cons: string[];
-  category: CategorySlug;
-}
-
-// Recipe timer
-export interface TimerState {
-  totalSeconds: number;
-  remainingSeconds: number;
-  isRunning: boolean;
-  label: string;
-}
-
-// Referral
-export interface ReferralCode {
-  code: string;
-  uses: number;
-  reward: string;
-}
-
-// Contact form
-export interface ContactFormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-// Daily calendar tip
-export interface CalendarTip {
-  id: string;
-  date: string; // YYYY-MM-DD
-  content: string;
-  category: CategorySlug;
-  icon: string;
-}
-
-// Newsletter subscriber
-export interface NewsletterSubscriber {
-  email: string;
-  subscribedAt: string;
-  interests: CategorySlug[];
-}
-
-// User rating
-export interface UserRating {
-  itemId: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-// ============================================================
-// Phase 3 — New Feature Types
-// ============================================================
-
-// AI Chat message
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-}
-
-// Gamification
-export interface GamificationState {
-  points: number;
-  level: number;
-  streak: number;
-  lastActiveDate: string | null;
-  badges: string[];
-  completedActions: string[];
-}
-
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  requirement: number;
-  category: string;
-}
-
-// Habit tracker
-export interface Habit {
-  id: string;
-  name: string;
-  icon: string;
-  category: 'health' | 'beauty' | 'fitness' | 'wellness' | 'spiritual';
-  target: number;
-  unit: string;
-  log: Record<string, number>; // date -> value
-}
-
-// Cycle tracker
-export interface CycleDay {
-  date: string;
-  phase: 'menstrual' | 'follicular' | 'ovulation' | 'luteal';
-  symptoms: string[];
-  mood: 'great' | 'good' | 'okay' | 'bad' | 'terrible' | null;
-  notes: string;
-  flowLevel: number;
-}
-
-export interface CycleData {
-  averageLength: number;
-  periodLength: number;
-  lastPeriodDate: string;
-  log: CycleDay[];
-}
-
-// Community post
-export interface CommunityPost {
-  id: string;
-  authorName: string;
-  authorAvatar: string;
-  content: string;
-  images: string[];
-  category: CategorySlug;
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-  createdAt: string;
-  tags: string[];
-}
-
-// Challenge
-export interface Challenge {
-  id: string;
-  title: string;
-  description: string;
-  duration: number; // days
-  category: CategorySlug;
-  participants: number;
-  icon: string;
-  isActive: boolean;
-  joinedDate: string | null;
-  progress: number;
-  tasks: string[];
-}
-
-// Expert session
-export interface ExpertSession {
-  id: string;
-  expertName: string;
-  specialty: string;
-  avatar: string;
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  duration: string;
-  isLive: boolean;
-  isRegistered: boolean;
-  category: CategorySlug;
-}
-
-// Wardrobe item
-export interface WardrobeItem {
-  id: string;
-  name: string;
-  category: 'top' | 'bottom' | 'dress' | 'outerwear' | 'shoes' | 'accessory' | 'scarf' | 'bag';
-  color: string;
-  season: 'spring' | 'summer' | 'fall' | 'winter' | 'all';
-  occasion: 'casual' | 'formal' | 'work' | 'party' | 'sport';
-  image: string;
-  brand: string;
-  favorite: boolean;
-}
-
-// Natural recipe lab
-export interface LabRecipe {
-  id: string;
-  name: string;
-  ingredients: { name: string; amount: string; has: boolean }[];
-  steps: string[];
-  benefits: string[];
-  warnings: string[];
-  skinType: SkinType[];
-  pregnancySafe: boolean;
-  duration: string;
-  category: 'skin' | 'hair' | 'body' | 'face';
 }

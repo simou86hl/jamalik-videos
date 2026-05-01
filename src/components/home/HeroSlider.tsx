@@ -1,198 +1,134 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { HERO_SLIDES } from '@/data/seedData';
+import { ChevronLeft, ChevronRight, Play, Star } from 'lucide-react';
+import { HERO_SLIDE_INTERVAL_MS } from '@/lib/constants';
+import { ALL_SERIES, HERO_SLIDES } from '@/data/seriesData';
 import { useStore } from '@/store/useStore';
 import { cn } from '@/lib/utils';
-import type { CategorySlug } from '@/types';
-
-const SLIDE_DURATION = 5000;
 
 export function HeroSlider() {
   const [current, setCurrent] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [displayedTitle, setDisplayedTitle] = useState('');
-  const [isTyping, setIsTyping] = useState(true);
-  const navigateTo = useStore((s) => s.navigateTo);
-  const selectCategory = useStore((s) => s.selectCategory);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { selectSeries } = useStore();
+  const total = HERO_SLIDES.length;
 
-  const slides = HERO_SLIDES;
+  const next = useCallback(() => setCurrent((p) => (p + 1) % total), [total]);
+  const prev = useCallback(() => setCurrent((p) => (p - 1 + total) % total), [total]);
 
-  const goToSlide = useCallback(
-    (index: number) => {
-      selectCategory(slides[index].category as CategorySlug);
-      navigateTo('category');
-    },
-    [selectCategory, navigateTo, slides]
-  );
-
-  // Typewriter effect
   useEffect(() => {
-    const title = slides[current].title;
-    setDisplayedTitle('');
-    setIsTyping(true);
-    let charIndex = 0;
+    const timer = setInterval(next, HERO_SLIDE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [next]);
 
-    const typeInterval = setInterval(() => {
-      if (charIndex < title.length) {
-        setDisplayedTitle(title.slice(0, charIndex + 1));
-        charIndex++;
-      } else {
-        setIsTyping(false);
-        clearInterval(typeInterval);
-      }
-    }, 35);
-
-    return () => clearInterval(typeInterval);
-  }, [current, slides]);
-
-  // Auto-play progress bar
-  useEffect(() => {
-    setProgress(0);
-
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        const increment = 100 / (SLIDE_DURATION / 30);
-        const next = prev + increment;
-        if (next >= 100) return 100;
-        return next;
-      });
-    }, 30);
-
-    timeoutRef.current = setTimeout(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, SLIDE_DURATION);
-
-    progressRef.current = progressInterval;
-
-    return () => {
-      clearInterval(progressInterval);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [current, slides.length]);
-
-  const handleDotClick = (index: number) => {
-    setCurrent(index);
-    setProgress(0);
-  };
-
-  const handleArrowClick = (direction: 'prev' | 'next') => {
-    setCurrent((prev) => {
-      if (direction === 'prev') return (prev - 1 + slides.length) % slides.length;
-      return (prev + 1) % slides.length;
-    });
-    setProgress(0);
+  const handleWatchNow = (slideId: string) => {
+    const series = ALL_SERIES.find((s) => s.id === slideId);
+    if (series) selectSeries(series);
   };
 
   return (
-    <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden rounded-2xl mx-auto">
+    <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px] lg:h-[480px] overflow-hidden rounded-2xl lg:rounded-3xl">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
-          className="absolute inset-0 cursor-pointer"
-          onClick={() => goToSlide(current)}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          className="absolute inset-0"
         >
-          {/* Image with Ken Burns effect */}
-          <motion.div
-            initial={{ scale: 1 }}
-            animate={{ scale: 1.08 }}
-            transition={{ duration: SLIDE_DURATION / 1000, ease: 'linear' }}
+          {/* Background Image */}
+          <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${slides[current].image})` }}
+            style={{ backgroundImage: `url(${HERO_SLIDES[current].image})` }}
           />
-
-          {/* Dramatic gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-transparent" />
-
-          {/* Pattern dots overlay */}
-          <div className="absolute inset-0 pattern-dots opacity-[0.03]" />
-
-          {/* Content */}
-          <div className="relative h-full flex flex-col justify-center px-8 sm:px-12 lg:px-16 max-w-xl">
-            <motion.h2
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-white mb-3"
-            >
-              {displayedTitle}
-              {isTyping && (
-                <span className="inline-block w-[2px] h-[1em] bg-white mr-1 animate-pulse align-middle" />
-              )}
-            </motion.h2>
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              className="text-sm sm:text-base text-white/80 mb-5 leading-relaxed"
-            >
-              {slides[current].subtitle}
-            </motion.p>
-            <motion.button
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.55 }}
-              onClick={(e) => { e.stopPropagation(); goToSlide(current); }}
-              className="btn-primary glow-primary-hover w-fit text-sm cursor-pointer"
-            >
-              اكتشفي المزيد
-            </motion.button>
-          </div>
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation arrows - glass-strong + gradient hover */}
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col justify-end p-6 sm:p-8 lg:p-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+            className="max-w-lg"
+          >
+            {/* Category Badge */}
+            <span className="inline-block px-3 py-1 rounded-full glass text-xs font-bold text-white mb-3">
+              {HERO_SLIDES[current].category === 'turkish' ? 'تركية' :
+               HERO_SLIDES[current].category === 'drama' ? 'دراما' :
+               HERO_SLIDES[current].category === 'action' ? 'أكشن' :
+               HERO_SLIDES[current].category === 'documentary' ? 'وثائقي' :
+               HERO_SLIDES[current].category}
+            </span>
+
+            {/* Title */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-white mb-2 leading-tight">
+              {HERO_SLIDES[current].title}
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-sm sm:text-base text-white/80 mb-4 line-clamp-2">
+              {HERO_SLIDES[current].subtitle}
+            </p>
+
+            {/* Rating + CTA */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleWatchNow(HERO_SLIDES[current].seriesId)}
+                className="btn-primary flex items-center gap-2 text-sm"
+              >
+                <Play className="h-4 w-4 fill-white" />
+                شاهد الآن
+              </button>
+              <div className="flex items-center gap-1 glass px-3 py-1.5 rounded-full">
+                <Star className="h-4 w-4 text-accent fill-accent" />
+                <span className="text-xs font-bold text-white">
+                  {ALL_SERIES.find((s) => s.id === HERO_SLIDES[current].seriesId)?.rating.average || '0'}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation Arrows */}
       <button
-        onClick={() => handleArrowClick('prev')}
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-strong flex items-center justify-center text-white hover:bg-gradient-to-r hover:from-primary hover:to-secondary transition-all duration-300 cursor-pointer group"
+        onClick={prev}
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
         aria-label="السابق"
       >
-        <ChevronLeft className="h-6 w-6 transition-transform group-hover:scale-110" />
+        <ChevronRight className="h-5 w-5" />
       </button>
       <button
-        onClick={() => handleArrowClick('next')}
-        className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-strong flex items-center justify-center text-white hover:bg-gradient-to-r hover:from-secondary hover:to-primary transition-all duration-300 cursor-pointer group"
+        onClick={next}
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
         aria-label="التالي"
       >
-        <ChevronRight className="h-6 w-6 transition-transform group-hover:scale-110" />
+        <ChevronLeft className="h-5 w-5" />
       </button>
 
-      {/* Bottom bar: progress + dots */}
-      <div className="absolute bottom-0 left-0 right-0 z-10">
-        {/* Progress bar */}
-        <div className="h-[3px] bg-white/10">
-          <motion.div
-            className="h-full bg-gradient-to-r from-primary via-secondary to-accent"
-            initial={{ width: '0%' }}
-            animate={{ width: `${progress}%` }}
-            transition={{ ease: 'linear', duration: 0.03 }}
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        {HERO_SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrent(idx)}
+            className={cn(
+              'h-2 rounded-full transition-all duration-300 cursor-pointer',
+              idx === current
+                ? 'w-8 bg-gradient-primary'
+                : 'w-2 bg-white/40 hover:bg-white/60'
+            )}
+            aria-label={`الشريحة ${idx + 1}`}
           />
-        </div>
-
-        {/* Pill-shaped dots */}
-        <div className="flex items-center justify-center gap-2 py-3">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handleDotClick(i)}
-              className={cn(
-                'rounded-full transition-all duration-500 cursor-pointer',
-                i === current
-                  ? 'w-8 h-3 bg-gradient-to-r from-primary via-secondary to-accent glow-primary'
-                  : 'w-3 h-3 bg-white/40 hover:bg-white/70'
-              )}
-              aria-label={`الانتقال إلى الشريحة ${i + 1}`}
-            />
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );

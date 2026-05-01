@@ -1,99 +1,27 @@
-import type { Category, NavLink } from '@/types';
+import type { SeriesCategory, NavLink } from '@/types';
 
 // ============================================================
 // Site Information
 // ============================================================
 
-export const SITE_NAME = 'جمالكِ';
+export const SITE_NAME = 'مسلسلات أونلاين';
 export const SITE_DESCRIPTION =
-  'موقع شامل للمرأة العربية يغطي الموضة والطبخ والعناية بالبشرة والشعر واللياقة البدنية والتجميل والصحة. نصائح ومقالات ووصفات يومية تناسب جميع الأعمار.';
-export const SITE_URL = 'https://jamalik.app';
+  'شاهد أحدث المسلسلات العربية والعالمية بجودة عالية. دراما، كوميدي، أكشن، رومانسي، تركية، هندية، كرتون، وثائقي';
+export const SITE_URL = 'https://musalsalat.online';
 
 // ============================================================
 // Categories (8 main categories)
 // ============================================================
 
-export const CATEGORIES: Category[] = [
-  {
-    id: 'cat-1',
-    name: 'الموضة',
-    slug: 'fashion',
-    icon: 'Shirt',
-    description: 'آخر صيحات الموضة والأزياء، نصائح لاختيار الملابس المناسبة وإطلالات مميزة لكل مناسبة',
-    image: '/images/categories/fashion.jpg',
-    order: 1,
-    subcategories: ['ملابس يومية', 'سهرة', 'محجبات', 'إكسسوارات', 'أحذية', 'حقائب'],
-  },
-  {
-    id: 'cat-2',
-    name: 'الطبخ',
-    slug: 'cooking',
-    icon: 'ChefHat',
-    description: 'وصفات شهية من المطبخ العربي والعالمي، من الأطباق الرئيسية إلى الحلويات والمشروبات',
-    image: '/images/categories/cooking.jpg',
-    order: 2,
-    subcategories: ['أطباق رئيسية', 'حلويات', 'مقبلات', 'سلطات', 'مشروبات', 'أكل صحي'],
-  },
-  {
-    id: 'cat-3',
-    name: 'البشرة',
-    slug: 'skincare',
-    icon: 'Sparkles',
-    description: 'روتين العناية بالبشرة، ماسكات طبيعية، نصائح للترطيب والتفتيح ومكافحة مشاكل البشرة',
-    image: '/images/categories/skincare.jpg',
-    order: 3,
-    subcategories: ['تنظيف', 'ترطيب', 'ماسكات', 'مشاكل', 'واقي شمس', 'تبييض'],
-  },
-  {
-    id: 'cat-4',
-    name: 'الشعر',
-    slug: 'haircare',
-    icon: 'Scissors',
-    description: 'عناية شاملة بالشعر، وصفات للتطويل والتكثيف، تسريحات حديثة ونصائح للصبغات',
-    image: '/images/categories/haircare.jpg',
-    order: 4,
-    subcategories: ['تطويل', 'تكثيف', 'تساقط', 'صبغات', 'تسريحات', 'زيوت'],
-  },
-  {
-    id: 'cat-5',
-    name: 'اللياقة',
-    slug: 'fitness',
-    icon: 'Dumbbell',
-    description: 'تمارين رياضية منزلية، يوغا، حميات غذائية صحية ونصائح لتحسين اللياقة البدنية',
-    image: '/images/categories/fitness.jpg',
-    order: 5,
-    subcategories: ['تمارين', 'يوغا', 'حميات', 'إنقاص وزن', 'زيادة وزن', 'صحة نفسية'],
-  },
-  {
-    id: 'cat-6',
-    name: 'التجميل',
-    slug: 'beauty',
-    icon: 'Palette',
-    description: 'أسرار المكياج، نصائح التجميل اليومي والسهرة، العناية بالأظافر والعطور',
-    image: '/images/categories/beauty.jpg',
-    order: 6,
-    subcategories: ['مكياج يومي', 'مكياج سهرة', 'أظافر', 'عطور', 'إزالة شعر'],
-  },
-  {
-    id: 'cat-7',
-    name: 'الصحة',
-    slug: 'health',
-    icon: 'Heart',
-    description: 'نصائح صحية شاملة، تغذية سليمة، صحة المرأة والحمل والنصائح الطبية العامة',
-    image: '/images/categories/health.jpg',
-    order: 7,
-    subcategories: ['حمل وولادة', 'دورة شهرية', 'تغذية', 'نصائح طبية'],
-  },
-  {
-    id: 'cat-8',
-    name: 'وصفات طبيعية',
-    slug: 'natural',
-    icon: 'Leaf',
-    description: 'وصفات طبيعية من المطبخ للعناية بالبشرة والشعر والجسم بدون مواد كيميائية',
-    image: '/images/categories/natural.jpg',
-    order: 8,
-    subcategories: ['بشرة', 'شعر', 'جسم', 'وجه', 'شفاة', 'أظافر'],
-  },
+export const CATEGORIES: SeriesCategory[] = [
+  { id: 'cat-1', name: 'دراما', slug: 'drama', icon: 'Theater', description: 'مسلسلات درامية مليئة بالتشويق والعواطف', image: '/images/categories/drama.jpg', order: 1 },
+  { id: 'cat-2', name: 'كوميدي', slug: 'comedy', icon: 'Laugh', description: 'مسلسلات كوميدية تضحكك وتسعد يومك', image: '/images/categories/comedy.jpg', order: 2 },
+  { id: 'cat-3', name: 'أكشن', slug: 'action', icon: 'Swords', description: 'مسلسلات أكشن وإثارة وتشويق لا يتوقف', image: '/images/categories/action.jpg', order: 3 },
+  { id: 'cat-4', name: 'رومانسي', slug: 'romantic', icon: 'Heart', description: 'أجمل المسلسلات الرومانسية والعاطفية', image: '/images/categories/romantic.jpg', order: 4 },
+  { id: 'cat-5', name: 'تركية', slug: 'turkish', icon: 'Globe', description: 'أشهر المسلسلات التركية المدبلجة والمترجمة', image: '/images/categories/turkish.jpg', order: 5 },
+  { id: 'cat-6', name: 'هندية', slug: 'indian', icon: 'Music', description: 'مسلسلات هندية ممتعة وقصص حب مثيرة', image: '/images/categories/indian.jpg', order: 6 },
+  { id: 'cat-7', name: 'كرتون', slug: 'cartoon', icon: 'Palette', description: 'أفضل الرسوم المتحركة للكبار والأطفال', image: '/images/categories/cartoon.jpg', order: 7 },
+  { id: 'cat-8', name: 'وثائقي', slug: 'documentary', icon: 'BookOpen', description: 'وثائقيات مثيرة عن التاريخ والطبيعة والعلوم', image: '/images/categories/documentary.jpg', order: 8 },
 ];
 
 // ============================================================
@@ -102,78 +30,20 @@ export const CATEGORIES: Category[] = [
 
 export const NAV_LINKS: NavLink[] = [
   { label: 'الرئيسية', slug: 'home' },
-  { label: 'الموضة', slug: 'fashion', icon: 'Shirt' },
-  { label: 'الطبخ', slug: 'cooking', icon: 'ChefHat' },
-  { label: 'البشرة', slug: 'skincare', icon: 'Sparkles' },
-  { label: 'الشعر', slug: 'haircare', icon: 'Scissors' },
-  { label: 'اللياقة', slug: 'fitness', icon: 'Dumbbell' },
-  { label: 'التجميل', slug: 'beauty', icon: 'Palette' },
-  { label: 'الصحة', slug: 'health', icon: 'Heart' },
-  { label: 'طبيعي', slug: 'natural', icon: 'Leaf' },
+  { label: 'دراما', slug: 'drama', icon: 'Theater' },
+  { label: 'كوميدي', slug: 'comedy', icon: 'Laugh' },
+  { label: 'أكشن', slug: 'action', icon: 'Swords' },
+  { label: 'رومانسي', slug: 'romantic', icon: 'Heart' },
+  { label: 'تركية', slug: 'turkish', icon: 'Globe' },
+  { label: 'هندية', slug: 'indian', icon: 'Music' },
+  { label: 'كرتون', slug: 'cartoon', icon: 'Palette' },
+  { label: 'وثائقي', slug: 'documentary', icon: 'BookOpen' },
 ];
-
-// ============================================================
-// Footer Links
-// ============================================================
-
-export const FOOTER_LINKS = {
-  categories: CATEGORIES.map((c) => ({ label: c.name, slug: c.slug })),
-  about: [
-    { label: 'من نحن', page: 'about' as const },
-    { label: 'سياسة الخصوصية', page: 'privacy' as const },
-    { label: 'شروط الاستخدام', page: 'about' as const },
-    { label: 'تواصل معنا', page: 'contact' as const },
-  ],
-  more: [
-    { label: 'الاختبارات', page: 'quiz' as const, icon: 'Brain' },
-    { label: 'مقارنة المنتجات', page: 'compare' as const, icon: 'GitCompareArrows' },
-    { label: 'الدعوة والأصدقاء', page: 'referral' as const, icon: 'Gift' },
-    { label: 'الإشعارات', page: 'notifications' as const, icon: 'Bell' },
-  ],
-};
-
-// ============================================================
-// Social Media Links
-// ============================================================
-
-export const SOCIAL_LINKS = [
-  { name: 'انستغرام', url: 'https://instagram.com/jamalik', icon: 'instagram' },
-  { name: 'تويتر', url: 'https://twitter.com/jamalik', icon: 'twitter' },
-  { name: 'فيسبوك', url: 'https://facebook.com/jamalik', icon: 'facebook' },
-  { name: 'تيك توك', url: 'https://tiktok.com/@jamalik', icon: 'tiktok' },
-  { name: 'يوتيوب', url: 'https://youtube.com/@jamalik', icon: 'youtube' },
-  { name: 'سناب شات', url: 'https://snapchat.com/add/jamalik', icon: 'snapchat' },
-];
-
-// ============================================================
-// Age Groups Labels (Arabic)
-// ============================================================
-
-export const AGE_GROUP_LABELS: Record<string, string> = {
-  all: 'جميع الأعمار',
-  teen: 'مراهقات',
-  young: 'شابات',
-  adult: 'بالغات',
-  mature: 'ناضجات',
-};
-
-// ============================================================
-// Difficulty Labels
-// ============================================================
-
-export const DIFFICULTY_LABELS: Record<string, string> = {
-  'سهل': 'سهل',
-  'متوسط': 'متوسط',
-  'صعب': 'صعب',
-};
 
 // ============================================================
 // Constants for UI behavior
 // ============================================================
 
-export const ARTICLES_PER_PAGE = 12;
-export const RECIPES_PER_PAGE = 12;
+export const SERIES_PER_PAGE = 12;
 export const SEARCH_DEBOUNCE_MS = 300;
-export const TOAST_DURATION_MS = 3000;
 export const HERO_SLIDE_INTERVAL_MS = 5000;
-export const MAX_IMAGE_SIZE_MB = 5;

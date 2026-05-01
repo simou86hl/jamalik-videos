@@ -1,28 +1,20 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type {
   SitePage,
-  CategorySlug,
-  Article,
-  Recipe,
-  FavoriteItem,
-  Comment,
-  Notification,
-  UserRating,
-  TimerState,
-} from "@/types";
+  SeriesCategorySlug,
+  Series,
+  WatchProgress,
+} from '@/types';
 
-interface JamaliStore {
+interface MusalsalatStore {
   // Navigation
   currentPage: SitePage;
   previousPage: SitePage | null;
 
   // Selections
-  selectedCategory: CategorySlug | null;
-  selectedSubcategory: string | null;
-  selectedArticle: Article | null;
-  selectedRecipe: Recipe | null;
-  selectedQuizId: string | null;
+  selectedCategory: SeriesCategorySlug | null;
+  selectedSeries: Series | null;
 
   // Search
   searchQuery: string;
@@ -31,135 +23,62 @@ interface JamaliStore {
   // UI
   isMobileMenuOpen: boolean;
   isDarkMode: boolean;
-  fontSize: 'small' | 'medium' | 'large';
-  isReadingMode: boolean;
 
   // Favorites
-  favorites: FavoriteItem[];
+  favorites: string[];
 
-  // Comments
-  comments: Comment[];
-  commentsText: string;
+  // Watch progress
+  watchProgress: WatchProgress[];
 
-  // Notifications
-  notifications: Notification[];
-
-  // Ratings
-  userRatings: UserRating[];
-
-  // Timer
-  timerState: TimerState;
-
-  // Referral
-  referralCode: string | null;
-  newsletterSubscribed: boolean;
-
-  // Tracking
-  viewedArticles: string[];
-  completedQuizzes: string[];
+  // User ratings
+  userRatings: Record<string, number>;
 
   // Actions
   navigateTo: (page: SitePage) => void;
   goBack: () => void;
-  selectCategory: (slug: CategorySlug) => void;
-  selectSubcategory: (name: string) => void;
-  selectArticle: (article: Article) => void;
-  selectRecipe: (recipe: Recipe) => void;
-  selectQuiz: (quizId: string) => void;
+  selectCategory: (slug: SeriesCategorySlug) => void;
+  selectSeries: (series: Series) => void;
   setSearchQuery: (query: string) => void;
   toggleSearch: () => void;
   closeSearch: () => void;
   toggleMobileMenu: () => void;
-  closeMobileMenu: () => void;
   toggleDarkMode: () => void;
-  toggleFavorite: (itemId: string, type: "article" | "recipe") => void;
-  isFavorite: (itemId: string) => boolean;
-  clearSelection: () => void;
-
-  // Comment actions
-  addComment: (comment: Comment) => void;
-  deleteComment: (commentId: string) => void;
-
-  // Notification actions
-  markNotificationRead: (id: string) => void;
-  markAllNotificationsRead: () => void;
-
-  // Font size
-  setFontSize: (size: 'small' | 'medium' | 'large') => void;
-  toggleReadingMode: () => void;
-
-  // Timer actions
-  startTimer: (totalSeconds: number, label?: string) => void;
-  pauseTimer: () => void;
-  resetTimer: () => void;
-  tickTimer: () => void;
-
-  // Rating actions
-  submitRating: (itemId: string, rating: number) => void;
-
-  // Tracking actions
-  trackView: (articleId: string) => void;
-  completeQuiz: (quizId: string) => void;
-
-  // Newsletter
-  subscribeNewsletter: () => void;
-
-  // Referral
-  generateReferralCode: () => void;
+  toggleFavorite: (seriesId: string) => void;
+  isFavorite: (seriesId: string) => boolean;
+  updateWatchProgress: (progress: WatchProgress) => void;
+  getWatchProgress: (seriesId: string, seasonNum: number, epNum: number) => WatchProgress | undefined;
+  getContinueWatching: () => WatchProgress[];
+  submitRating: (seriesId: string, rating: number) => void;
+  getUserRating: (seriesId: string) => number;
 }
 
-export const useStore = create<JamaliStore>()(
+export const useStore = create<MusalsalatStore>()(
   persist(
     (set, get) => ({
       // Navigation
-      currentPage: "home",
+      currentPage: 'home',
       previousPage: null,
 
       // Selections
       selectedCategory: null,
-      selectedSubcategory: null,
-      selectedArticle: null,
-      selectedRecipe: null,
-      selectedQuizId: null,
+      selectedSeries: null,
 
       // Search
-      searchQuery: "",
+      searchQuery: '',
       isSearchOpen: false,
 
       // UI
       isMobileMenuOpen: false,
       isDarkMode: false,
-      fontSize: 'medium',
-      isReadingMode: false,
 
       // Favorites
       favorites: [],
 
-      // Comments
-      comments: [],
-      commentsText: "",
+      // Watch progress
+      watchProgress: [],
 
-      // Notifications
-      notifications: [],
-
-      // Ratings
-      userRatings: [],
-
-      // Timer
-      timerState: {
-        totalSeconds: 0,
-        remainingSeconds: 0,
-        isRunning: false,
-        label: 'وقت الطبخ',
-      },
-
-      // Referral
-      referralCode: null,
-      newsletterSubscribed: false,
-
-      // Tracking
-      viewedArticles: [],
-      completedQuizzes: [],
+      // User ratings
+      userRatings: {},
 
       // Actions
       navigateTo: (page) => {
@@ -169,7 +88,6 @@ export const useStore = create<JamaliStore>()(
           isMobileMenuOpen: false,
           isSearchOpen: false,
         }));
-        // Scroll to top on every navigation
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -177,12 +95,10 @@ export const useStore = create<JamaliStore>()(
 
       goBack: () => {
         set((state) => ({
-          currentPage: state.previousPage || "home",
+          currentPage: state.previousPage || 'home',
           previousPage: null,
-          selectedArticle: null,
-          selectedRecipe: null,
+          selectedSeries: null,
           selectedCategory: null,
-          selectedQuizId: null,
         }));
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -190,32 +106,10 @@ export const useStore = create<JamaliStore>()(
       },
 
       selectCategory: (slug) =>
-        set({
-          selectedCategory: slug,
-          selectedSubcategory: null,
-          selectedArticle: null,
-          selectedRecipe: null,
-        }),
+        set({ selectedCategory: slug, selectedSeries: null }),
 
-      selectSubcategory: (name) =>
-        set({ selectedSubcategory: name }),
-
-      selectArticle: (article) => {
-        set({ selectedArticle: article, currentPage: "article" });
-        if (typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      },
-
-      selectRecipe: (recipe) => {
-        set({ selectedRecipe: recipe, currentPage: "recipe" });
-        if (typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      },
-
-      selectQuiz: (quizId) => {
-        set({ selectedQuizId: quizId, currentPage: "quiz" });
+      selectSeries: (series) => {
+        set({ selectedSeries: series, currentPage: 'series-detail' });
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -226,154 +120,57 @@ export const useStore = create<JamaliStore>()(
       toggleSearch: () =>
         set((state) => ({ isSearchOpen: !state.isSearchOpen })),
 
-      closeSearch: () => set({ isSearchOpen: false, searchQuery: "" }),
+      closeSearch: () => set({ isSearchOpen: false, searchQuery: '' }),
 
       toggleMobileMenu: () =>
         set((state) => ({ isMobileMenuOpen: !state.isMobileMenuOpen })),
 
-      closeMobileMenu: () => set({ isMobileMenuOpen: false }),
-
       toggleDarkMode: () =>
         set((state) => ({ isDarkMode: !state.isDarkMode })),
 
-      toggleFavorite: (itemId, type) =>
+      toggleFavorite: (seriesId) =>
+        set((state) => ({
+          favorites: state.favorites.includes(seriesId)
+            ? state.favorites.filter((id) => id !== seriesId)
+            : [...state.favorites, seriesId],
+        })),
+
+      isFavorite: (seriesId) =>
+        get().favorites.includes(seriesId),
+
+      updateWatchProgress: (progress) =>
         set((state) => {
-          const exists = state.favorites.some((f) => f.itemId === itemId);
-          return {
-            favorites: exists
-              ? state.favorites.filter((f) => f.itemId !== itemId)
-              : [...state.favorites, { itemId, type }],
-          };
+          const filtered = state.watchProgress.filter(
+            (p) => !(p.seriesId === progress.seriesId && p.seasonNumber === progress.seasonNumber && p.episodeNumber === progress.episodeNumber)
+          );
+          return { watchProgress: [...filtered, progress] };
         }),
 
-      isFavorite: (itemId) =>
-        get().favorites.some((f) => f.itemId === itemId),
+      getWatchProgress: (seriesId, seasonNum, epNum) =>
+        get().watchProgress.find(
+          (p) => p.seriesId === seriesId && p.seasonNumber === seasonNum && p.episodeNumber === epNum
+        ),
 
-      clearSelection: () =>
-        set({
-          selectedCategory: null,
-          selectedSubcategory: null,
-          selectedArticle: null,
-          selectedRecipe: null,
-          selectedQuizId: null,
-        }),
+      getContinueWatching: () =>
+        get().watchProgress.sort(
+          (a, b) => new Date(b.lastWatched).getTime() - new Date(a.lastWatched).getTime()
+        ),
 
-      // Comment actions
-      addComment: (comment) =>
+      submitRating: (seriesId, rating) =>
         set((state) => ({
-          comments: [...state.comments, comment],
+          userRatings: { ...state.userRatings, [seriesId]: rating },
         })),
 
-      deleteComment: (commentId) =>
-        set((state) => ({
-          comments: state.comments.filter((c) => c.id !== commentId),
-        })),
-
-      // Notification actions
-      markNotificationRead: (id) =>
-        set((state) => ({
-          notifications: state.notifications.map((n) =>
-            n.id === id ? { ...n, read: true } : n
-          ),
-        })),
-
-      markAllNotificationsRead: () =>
-        set((state) => ({
-          notifications: state.notifications.map((n) => ({ ...n, read: true })),
-        })),
-
-      // Font size
-      setFontSize: (size) => set({ fontSize: size }),
-
-      toggleReadingMode: () =>
-        set((state) => ({ isReadingMode: !state.isReadingMode })),
-
-      // Timer actions
-      startTimer: (totalSeconds, label = 'وقت الطبخ') =>
-        set({
-          timerState: {
-            totalSeconds,
-            remainingSeconds: totalSeconds,
-            isRunning: true,
-            label,
-          },
-        }),
-
-      pauseTimer: () =>
-        set((state) => ({
-          timerState: { ...state.timerState, isRunning: false },
-        })),
-
-      resetTimer: () =>
-        set((state) => ({
-          timerState: {
-            ...state.timerState,
-            remainingSeconds: state.timerState.totalSeconds,
-            isRunning: false,
-          },
-        })),
-
-      tickTimer: () =>
-        set((state) => {
-          if (state.timerState.remainingSeconds <= 0) {
-            return {
-              timerState: { ...state.timerState, isRunning: false },
-            };
-          }
-          return {
-            timerState: {
-              ...state.timerState,
-              remainingSeconds: state.timerState.remainingSeconds - 1,
-            },
-          };
-        }),
-
-      // Rating actions
-      submitRating: (itemId, rating) =>
-        set((state) => ({
-          userRatings: [
-            ...state.userRatings.filter((r) => r.itemId !== itemId),
-            { itemId, rating, comment: '', createdAt: new Date().toISOString() },
-          ],
-        })),
-
-      // Tracking actions
-      trackView: (articleId) =>
-        set((state) => ({
-          viewedArticles: state.viewedArticles.includes(articleId)
-            ? state.viewedArticles
-            : [...state.viewedArticles, articleId],
-        })),
-
-      completeQuiz: (quizId) =>
-        set((state) => ({
-          completedQuizzes: state.completedQuizzes.includes(quizId)
-            ? state.completedQuizzes
-            : [...state.completedQuizzes, quizId],
-        })),
-
-      // Newsletter
-      subscribeNewsletter: () => set({ newsletterSubscribed: true }),
-
-      // Referral
-      generateReferralCode: () =>
-        set({
-          referralCode:
-            'JLK-' +
-            Math.random().toString(36).substring(2, 8).toUpperCase(),
-        }),
+      getUserRating: (seriesId) =>
+        get().userRatings[seriesId] || 0,
     }),
     {
-      name: "jamalik-storage",
+      name: 'musalsalat-storage',
       partialize: (state) => ({
         favorites: state.favorites,
-        isDarkMode: state.isDarkMode,
-        fontSize: state.fontSize,
+        watchProgress: state.watchProgress,
         userRatings: state.userRatings,
-        referralCode: state.referralCode,
-        newsletterSubscribed: state.newsletterSubscribed,
-        viewedArticles: state.viewedArticles,
-        completedQuizzes: state.completedQuizzes,
+        isDarkMode: state.isDarkMode,
       }),
     }
   )

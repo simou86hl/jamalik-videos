@@ -18,39 +18,27 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "جمالكِ | Jamalik - موقع المرأة العربية الشامل",
+  title: "مسلسلات أونلاين | شاهد أحدث المسلسلات",
   description:
-    "موقع شامل للمرأة العربية يغطي الموضة والطبخ والعناية بالبشرة والشعر واللياقة البدنية والتجميل والصحة. نصائح ومقالات ووصفات يومية تناسب جميع الأعمار.",
+    "شاهد أحدث المسلسلات العربية والعالمية بجودة عالية. دراما، كوميدي، أكشن، رومانسي، تركية، هندية، كرتون، وثائقي. بث مباشر وتحميل.",
   keywords: [
-    "جمالك",
-    "موضة",
-    "طبخ",
-    "بشرة",
-    "شعر",
-    "لياقة",
-    "تجميل",
-    "صحة",
-    "وصفات",
-    "مرأة عربية",
-    "عناية بالبشرة",
-    "عناية بالشعر",
-    "مكياج",
-    "أزياء",
-    " رجيم",
-    "حمية",
-    "تمارين رياضية",
-    "وصفات طبيعية",
-    "نصائح جمالية",
-    "صحة المرأة",
-    "إطلالات",
-    "ديكور",
-    "أمومة",
-    "طبخ صحي",
-    "خلطات طبيعية",
-    "فاشن",
-    "ستايل",
+    "مسلسلات",
+    "دراما",
+    "كوميدي",
+    "أكشن",
+    "رومانسي",
+    "تركية",
+    "هندية",
+    "كرتون",
+    "وثائقي",
+    "مسلسلات عربية",
+    "مسلسلات تركية",
+    "بث مباشر",
+    "مشاهدة أونلاين",
+    "أفلام",
+    "حلقات جديدة",
   ],
-  authors: [{ name: "جمالكِ" }],
+  authors: [{ name: "مسلسلات أونلاين" }],
   robots: {
     index: true,
     follow: true,
@@ -63,24 +51,24 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "جمالكِ | Jamalik",
-    description: "موقع المرأة العربية الشامل - الموضة والطبخ والجمال والصحة",
+    title: "مسلسلات أونلاين | Musalsalat Online",
+    description: "شاهد أحدث المسلسلات العربية والعالمية بجودة عالية",
     type: "website",
     locale: "ar_AR",
-    siteName: "جمالكِ",
+    siteName: "مسلسلات أونلاين",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "جمالكِ - موقع المرأة العربية الشامل",
+        alt: "مسلسلات أونلاين - شاهد أحدث المسلسلات",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "جمالكِ | Jamalik",
-    description: "موقع المرأة العربية الشامل - الموضة والطبخ والجمال والصحة",
+    title: "مسلسلات أونلاين | Musalsalat Online",
+    description: "شاهد أحدث المسلسلات العربية والعالمية بجودة عالية",
     images: ["/og-image.png"],
   },
   manifest: "/manifest.json",
@@ -88,7 +76,7 @@ export const metadata: Metadata = {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'جمالكِ',
+    'apple-mobile-web-app-title': 'مسلسلات أونلاين',
     'theme-color': '#c2185b',
     'msapplication-TileColor': '#c2185b',
   },
@@ -113,7 +101,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#c2185b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="جمالكِ" />
+        <meta name="apple-mobile-web-app-title" content="مسلسلات أونلاين" />
       </head>
       <body
         className={`${cairo.variable} ${tajawal.variable} min-h-screen antialiased`}
@@ -134,25 +122,25 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              name: 'جمالكِ',
-              alternateName: 'Jamalik',
-              url: 'https://jamalik.app',
-              description: 'موقع شامل للمرأة العربية يغطي الموضة والطبخ والعناية بالبشرة والشعر واللياقة والتجميل والصحة',
+              name: 'مسلسلات أونلاين',
+              alternateName: 'Musalsalat Online',
+              url: 'https://musalsalat.online',
+              description: 'شاهد أحدث المسلسلات العربية والعالمية بجودة عالية. دراما، كوميدي، أكشن، رومانسي، تركية، هندية، كرتون، وثائقي',
               inLanguage: 'ar',
               potentialAction: {
                 '@type': 'SearchAction',
                 target: {
                   '@type': 'EntryPoint',
-                  urlTemplate: 'https://jamalik.app/?search={search_term_string}',
+                  urlTemplate: 'https://musalsalat.online/?search={search_term_string}',
                 },
                 'query-input': 'required name=search_term_string',
               },
               publisher: {
                 '@type': 'Organization',
-                name: 'جمالكِ',
+                name: 'مسلسلات أونلاين',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://jamalik.app/icons/icon-512.png',
+                  url: 'https://musalsalat.online/icons/icon-512.png',
                 },
               },
             }),

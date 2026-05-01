@@ -1,61 +1,51 @@
 'use client';
 
-import { SITE_NAME, FOOTER_LINKS, SOCIAL_LINKS } from '@/lib/constants';
+import { SITE_NAME, CATEGORIES } from '@/lib/constants';
 import { useStore } from '@/store/useStore';
 import {
-  Heart, Sparkles, Camera, MessageCircle, Users,
-  Tv, Send, Film,
-  Shirt, ChefHat, Scissors, Dumbbell,
-  Palette, Leaf, Globe, Info, Shield, Phone, FileText,
+  Heart, Tv, Camera, MessageCircle, Users,
+  Globe,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-import type { CategorySlug, SitePage } from '@/types';
+import {
+  Theater, Laugh, Swords, Music, Palette, BookOpen,
+} from 'lucide-react';
+import type { SeriesCategorySlug, SitePage } from '@/types';
 
 const SOCIAL_ICONS: Record<string, React.ElementType> = {
   instagram: Camera,
   twitter: MessageCircle,
   facebook: Users,
-  tiktok: Film,
-  youtube: Tv,
-  snapchat: Send,
 };
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  fashion: Shirt,
-  cooking: ChefHat,
-  skincare: Sparkles,
-  haircare: Scissors,
-  fitness: Dumbbell,
-  beauty: Palette,
-  health: Heart,
-  natural: Leaf,
-};
-
-const USEFUL_LINKS = [
-  { label: 'من نحن', page: 'about' as SitePage, icon: Info },
-  { label: 'سياسة الخصوصية', page: 'privacy' as SitePage, icon: Shield },
-  { label: 'شروط الاستخدام', page: 'about' as SitePage, icon: FileText },
-  { label: 'تواصل معنا', page: 'contact' as SitePage, icon: Phone },
+const SOCIAL_LINKS = [
+  { name: 'انستغرام', url: 'https://instagram.com/musalsalat', icon: 'instagram' },
+  { name: 'تويتر', url: 'https://twitter.com/musalsalat', icon: 'twitter' },
+  { name: 'فيسبوك', url: 'https://facebook.com/musalsalat', icon: 'facebook' },
 ];
 
-const MORE_LINKS = [
-  { label: 'الاختبارات', page: 'quiz' as SitePage, icon: 'Brain' },
-  { label: 'مقارنة المنتجات', page: 'compare' as SitePage, icon: 'GitCompareArrows' },
-  { label: 'الدعوة والأصدقاء', page: 'referral' as SitePage, icon: 'Gift' },
-  { label: 'الإشعارات', page: 'notifications' as SitePage, icon: 'Bell' },
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  drama: Theater,
+  comedy: Laugh,
+  action: Swords,
+  romantic: Heart,
+  turkish: Globe,
+  indian: Music,
+  cartoon: Palette,
+  documentary: BookOpen,
+};
+
+const QUICK_LINKS = [
+  { label: 'المفضلة', page: 'favorites' as SitePage },
+  { label: 'تابع المشاهدة', page: 'continue-watching' as SitePage },
 ];
 
 export function Footer() {
   const { navigateTo, selectCategory } = useStore();
 
   const handleCategoryClick = (slug: string) => {
-    selectCategory(slug as CategorySlug);
+    selectCategory(slug as SeriesCategorySlug);
     navigateTo('category');
-  };
-
-  const handlePageNav = (page: SitePage) => {
-    navigateTo(page);
   };
 
   return (
@@ -65,7 +55,7 @@ export function Footer() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-white" />
+              <Tv className="h-4 w-4 text-white" />
             </div>
             <span className="text-lg font-heading font-bold text-gradient">{SITE_NAME}</span>
           </div>
@@ -89,11 +79,11 @@ export function Footer() {
           </div>
         </div>
 
-        {/* ─── الأقسام (pill chips - single row wrap) ─── */}
+        {/* ─── الأقسام (pill chips) ─── */}
         <div className="mb-4">
           <div className="flex flex-wrap gap-1.5">
-            {FOOTER_LINKS.categories.slice(0, 7).map((cat, i) => {
-              const Icon = CATEGORY_ICONS[cat.slug];
+            {CATEGORIES.map((cat, i) => {
+              const Icon = CATEGORY_ICONS[cat.slug] || Tv;
               return (
                 <motion.button
                   key={cat.slug}
@@ -105,42 +95,29 @@ export function Footer() {
                   className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium glass-subtle text-text-subtle hover:text-primary hover:bg-primary/5 transition-all duration-200 cursor-pointer"
                 >
                   {Icon && <Icon className="h-2.5 w-2.5" />}
-                  {cat.label}
+                  {cat.name}
                 </motion.button>
               );
             })}
           </div>
         </div>
 
-        {/* ─── روابط مفيدة + المزيد (inline links) ─── */}
+        {/* ─── Quick Links ─── */}
         <div className="mb-4">
           <div className="flex flex-wrap gap-x-3 gap-y-1">
-            {USEFUL_LINKS.map((link) => {
-              const Icon = link.icon;
-              return (
-                <button
-                  key={link.label}
-                  onClick={() => handlePageNav(link.page)}
-                  className="flex items-center gap-1 text-[11px] text-text-subtle hover:text-primary transition-colors duration-200 cursor-pointer py-0.5"
-                >
-                  <Icon className="h-2.5 w-2.5" />
-                  {link.label}
-                </button>
-              );
-            })}
+            {QUICK_LINKS.map((link) => (
+              <button
+                key={link.page}
+                onClick={() => navigateTo(link.page)}
+                className="text-[11px] text-text-subtle hover:text-primary transition-colors duration-200 cursor-pointer py-0.5"
+              >
+                {link.label}
+              </button>
+            ))}
             <span className="text-border">|</span>
-            {MORE_LINKS.map((link) => (
-                <button
-                  key={link.page}
-                  onClick={() => handlePageNav(link.page)}
-                  className="flex items-center gap-1 text-[11px] text-text-subtle hover:text-primary transition-colors duration-200 cursor-pointer py-0.5"
-                >
-                  {link.label}
-                </button>
-              ))}
             <button className="flex items-center gap-1 text-[11px] text-text-subtle hover:text-primary transition-colors duration-200 cursor-pointer py-0.5">
               <Globe className="h-2.5 w-2.5" />
-              اللغة العربية
+              العربية
             </button>
           </div>
         </div>

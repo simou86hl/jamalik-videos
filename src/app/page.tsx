@@ -6,42 +6,14 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
-import { DailyTip } from '@/components/home/DailyTip';
-import { LatestArticles } from '@/components/home/LatestArticles';
-import { LatestRecipes } from '@/components/home/LatestRecipes';
+import { ContinueWatching } from '@/components/home/ContinueWatching';
+import { FeaturedSeries } from '@/components/home/FeaturedSeries';
+import { LatestSeries } from '@/components/home/LatestSeries';
 import { SearchModal } from '@/components/shared/SearchModal';
+import { SeriesDetailPage } from '@/components/pages/SeriesDetailPage';
 import { CategoryPage } from '@/components/pages/CategoryPage';
-import { ArticlePage } from '@/components/pages/ArticlePage';
-import { RecipePage } from '@/components/pages/RecipePage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
-import { LoginPage } from '@/components/pages/LoginPage';
-import { ProfilePage } from '@/components/pages/ProfilePage';
-import { AboutPage } from '@/components/pages/AboutPage';
-import { ContactPage } from '@/components/pages/ContactPage';
-import { PrivacyPage } from '@/components/pages/PrivacyPage';
-import { QuizPage } from '@/components/pages/QuizPage';
-import { ComparePage } from '@/components/pages/ComparePage';
-import { ReferralPage } from '@/components/pages/ReferralPage';
-import { NotificationPage } from '@/components/pages/NotificationPage';
-import { DailyCalendarPage } from '@/components/pages/DailyCalendarPage';
-import { AdminPage } from '@/components/pages/AdminPage';
-import { VideoPage } from '@/components/pages/VideoPage';
-import { AiChatPage } from '@/components/pages/AiChatPage';
-import { AiRecipePage } from '@/components/pages/AiRecipePage';
-import { SkinAnalyzerPage } from '@/components/pages/SkinAnalyzerPage';
-import { StyleAdvisorPage } from '@/components/pages/StyleAdvisorPage';
-import { GamificationPage } from '@/components/pages/GamificationPage';
-import { ExpertSessionsPage } from '@/components/pages/ExpertSessionsPage';
-import { ProductScannerPage } from '@/components/pages/ProductScannerPage';
-import { RecipeLabPage } from '@/components/pages/RecipeLabPage';
-import { WardrobePage } from '@/components/pages/WardrobePage';
-import { VideoStudioPage } from '@/components/pages/VideoStudioPage';
-import { ChallengesPage } from '@/components/pages/ChallengesPage';
-import { BeautyDnaPage } from '@/components/pages/BeautyDnaPage';
-import { HabitTrackerPage } from '@/components/pages/HabitTrackerPage';
-import { CycleTrackerPage } from '@/components/pages/CycleTrackerPage';
-import { CommunityPage } from '@/components/pages/CommunityPage';
-import { ScrollToTopButton } from '@/components/shared/ScrollToTopButton';
+import { ContinueWatchingPage } from '@/components/pages/ContinueWatchingPage';
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, scale: 0.995 },
@@ -49,13 +21,13 @@ const pageVariants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] as [number, number, number, number] },
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
     y: -10,
     scale: 0.998,
-    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] as [number, number, number, number] },
+    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
 };
 
@@ -82,10 +54,22 @@ export default function Home() {
               <div className="pt-4 sm:pt-6">
                 <HeroSlider />
               </div>
+              <ContinueWatching />
               <CategoryGrid />
-              <DailyTip />
-              <LatestArticles />
-              <LatestRecipes />
+              <FeaturedSeries />
+              <LatestSeries />
+            </motion.div>
+          )}
+
+          {currentPage === 'series-detail' && (
+            <motion.div
+              key={`series-detail-${useStore.getState().selectedSeries?.id || ''}`}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <SeriesDetailPage />
             </motion.div>
           )}
 
@@ -101,30 +85,6 @@ export default function Home() {
             </motion.div>
           )}
 
-          {currentPage === 'article' && (
-            <motion.div
-              key="article"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ArticlePage />
-            </motion.div>
-          )}
-
-          {currentPage === 'recipe' && (
-            <motion.div
-              key="recipe"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <RecipePage />
-            </motion.div>
-          )}
-
           {currentPage === 'favorites' && (
             <motion.div
               key="favorites"
@@ -137,327 +97,15 @@ export default function Home() {
             </motion.div>
           )}
 
-          {(currentPage === 'login' || currentPage === 'register') && (
+          {currentPage === 'continue-watching' && (
             <motion.div
-              key={`login-${currentPage}`}
+              key="continue-watching"
               variants={pageVariants}
               initial="initial"
               animate="animate"
               exit="exit"
             >
-              <LoginPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'profile' && (
-            <motion.div
-              key="profile"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ProfilePage />
-            </motion.div>
-          )}
-
-          {currentPage === 'about' && (
-            <motion.div
-              key="about"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <AboutPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'contact' && (
-            <motion.div
-              key="contact"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ContactPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'privacy' && (
-            <motion.div
-              key="privacy"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <PrivacyPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'quiz' && (
-            <motion.div
-              key="quiz"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <QuizPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'compare' && (
-            <motion.div
-              key="compare"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ComparePage />
-            </motion.div>
-          )}
-
-          {currentPage === 'referral' && (
-            <motion.div
-              key="referral"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ReferralPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'notifications' && (
-            <motion.div
-              key="notifications"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <NotificationPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'daily-calendar' && (
-            <motion.div
-              key="daily-calendar"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <DailyCalendarPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'admin' && (
-            <motion.div
-              key="admin"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <AdminPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'videos' && (
-            <motion.div
-              key="videos"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <VideoPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'ai-chat' && (
-            <motion.div
-              key="ai-chat"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <AiChatPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'ai-recipe' && (
-            <motion.div
-              key="ai-recipe"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <AiRecipePage />
-            </motion.div>
-          )}
-
-          {currentPage === 'skin-analyzer' && (
-            <motion.div
-              key="skin-analyzer"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <SkinAnalyzerPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'style-advisor' && (
-            <motion.div
-              key="style-advisor"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <StyleAdvisorPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'gamification' && (
-            <motion.div
-              key="gamification"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <GamificationPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'expert-sessions' && (
-            <motion.div
-              key="expert-sessions"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ExpertSessionsPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'product-scanner' && (
-            <motion.div
-              key="product-scanner"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ProductScannerPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'recipe-lab' && (
-            <motion.div
-              key="recipe-lab"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <RecipeLabPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'wardrobe' && (
-            <motion.div
-              key="wardrobe"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <WardrobePage />
-            </motion.div>
-          )}
-
-          {currentPage === 'video-studio' && (
-            <motion.div
-              key="video-studio"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <VideoStudioPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'challenges' && (
-            <motion.div
-              key="challenges"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <ChallengesPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'beauty-dna' && (
-            <motion.div
-              key="beauty-dna"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <BeautyDnaPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'habit-tracker' && (
-            <motion.div
-              key="habit-tracker"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <HabitTrackerPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'cycle-tracker' && (
-            <motion.div
-              key="cycle-tracker"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <CycleTrackerPage />
-            </motion.div>
-          )}
-
-          {currentPage === 'community' && (
-            <motion.div
-              key="community"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <CommunityPage />
+              <ContinueWatchingPage />
             </motion.div>
           )}
         </AnimatePresence>
@@ -465,7 +113,6 @@ export default function Home() {
 
       <SearchModal />
       <Footer />
-      <ScrollToTopButton />
     </div>
   );
 }

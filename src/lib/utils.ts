@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { CategorySlug } from '@/types';
 
 /**
  * Merge Tailwind CSS classes with clsx and tailwind-merge
@@ -19,29 +18,6 @@ export function formatDate(date: string | Date): string {
     month: 'long',
     day: 'numeric',
   });
-}
-
-/**
- * Generate a URL-friendly slug from Arabic or English text
- */
-export function generateSlug(text: string): string {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\u0621-\u064Aa-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-/**
- * Calculate estimated reading time for Arabic text
- * Average Arabic reading speed: ~60 words per minute
- */
-export function getReadingTime(text: string): number {
-  const wordsPerMinute = 60;
-  const wordCount = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
 }
 
 /**
@@ -104,7 +80,7 @@ export function generateId(): string {
 }
 
 /**
- * Generate social media share URL
+ * Share to social media URL
  */
 export function shareToSocial(platform: string, url: string, title: string): string {
   const encodedUrl = encodeURIComponent(url);
@@ -114,57 +90,7 @@ export function shareToSocial(platform: string, url: string, title: string): str
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
-    pinterest: `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedTitle}`,
     copy: url,
   };
   return urls[platform] || url;
-}
-
-/**
- * Format seconds as MM:SS timer display
- */
-export function formatTimer(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-/**
- * Get current day of year (1-366)
- */
-export function getDayOfYear(): number {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff = now.getTime() - start.getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
-}
-
-/**
- * Generate a unique referral code
- */
-export function generateReferralCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = 'JM-';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-}
-
-/**
- * Fisher-Yates shuffle array (immutable)
- */
-export function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-/**
- * Get personalized category recommendations based on viewing history
- */
-export function getPersonalizedArticles(viewedArticles: string[], _allCategories: CategorySlug[]): CategorySlug[] {
-  const allCats: CategorySlug[] = ['fashion', 'cooking', 'skincare', 'haircare', 'fitness', 'beauty', 'health', 'natural'];
-  return shuffleArray(allCats).slice(0, 4);
 }

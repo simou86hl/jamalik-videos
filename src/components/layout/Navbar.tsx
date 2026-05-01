@@ -2,74 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Search, Menu, X, Heart, User, Home, Sparkles,
-  Bell, ShoppingBag, Shirt, ChefHat, Scissors,
-  Dumbbell, Palette, Leaf, Brain, GitCompareArrows,
-  Gift, Globe, Info, FileText, Shield, Phone, ChevronLeft,
-  Video, Play, Clock, Eye, ThumbsUp, Filter,
-  MessageCircle, Wand2, Scan, Trophy, Target, Dna,
-  CheckCircle, Flower2, Users, Radio, ScanLine, FlaskConical, Film,
+  Search, Menu, X, Heart, Home, Tv,
+  Theater, Laugh, Swords, Globe, Music,
+  Palette, BookOpen, ChevronLeft, Clock,
+  MonitorPlay,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
-import { NAV_LINKS, SITE_NAME, FOOTER_LINKS } from '@/lib/constants';
+import { NAV_LINKS, SITE_NAME, CATEGORIES } from '@/lib/constants';
 import { ThemeToggle } from './ThemeToggle';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
-import { VoiceSearch } from '@/components/shared/VoiceSearch';
-import { CartDrawer } from '@/components/shared/CartDrawer';
 import { cn } from '@/lib/utils';
-import type { SitePage, CategorySlug } from '@/types';
+import type { SitePage, SeriesCategorySlug } from '@/types';
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  fashion: Shirt,
-  cooking: ChefHat,
-  skincare: Sparkles,
-  haircare: Scissors,
-  fitness: Dumbbell,
-  beauty: Palette,
-  health: Heart,
-  natural: Leaf,
+  drama: Theater,
+  comedy: Laugh,
+  action: Swords,
+  romantic: Heart,
+  turkish: Globe,
+  indian: Music,
+  cartoon: Palette,
+  documentary: BookOpen,
 };
-
-const MORE_MENU_ITEMS: { label: string; page: SitePage; icon: React.ElementType }[] = [
-  { label: 'مساعد جمالكِ الذكي', page: 'ai-chat', icon: MessageCircle },
-  { label: 'مولّد الوصفات الذكي', page: 'ai-recipe', icon: Wand2 },
-  { label: 'محلل البشرة والشعر', page: 'skin-analyzer', icon: Scan },
-  { label: 'مستشار الأزياء الذكي', page: 'style-advisor', icon: Sparkles },
-  { label: 'نقاط جمالكِ', page: 'gamification', icon: Trophy },
-  { label: 'التحديات الجماعية', page: 'challenges', icon: Target },
-  { label: 'ملف جمالكِ الشخصي', page: 'beauty-dna', icon: Dna },
-  { label: 'متتبع العادات', page: 'habit-tracker', icon: CheckCircle },
-  { label: 'متتبع الدورة الشهرية', page: 'cycle-tracker', icon: Flower2 },
-  { label: 'مجتمع جمالكِ', page: 'community', icon: Users },
-  { label: 'جلسات الخبراء', page: 'expert-sessions', icon: Radio },
-  { label: 'ماسح المنتجات', page: 'product-scanner', icon: ScanLine },
-  { label: 'مختبر الوصفات الطبيعية', page: 'recipe-lab', icon: FlaskConical },
-  { label: 'خزانة ملابسي', page: 'wardrobe', icon: Shirt },
-  { label: 'استوديو الفيديوهات', page: 'video-studio', icon: Film },
-  { label: 'الاختبارات', page: 'quiz', icon: Brain },
-  { label: 'مقارنة المنتجات', page: 'compare', icon: GitCompareArrows },
-  { label: 'الدعوة والأصدقاء', page: 'referral', icon: Gift },
-  { label: 'الإشعارات', page: 'notifications', icon: Bell },
-];
-
-const USEFUL_LINKS: { label: string; page: SitePage; icon: React.ElementType }[] = [
-  { label: 'من نحن', page: 'about', icon: Info },
-  { label: 'سياسة الخصوصية', page: 'privacy', icon: Shield },
-  { label: 'شروط الاستخدام', page: 'about', icon: FileText },
-  { label: 'تواصل معنا', page: 'contact', icon: Phone },
-];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const {
     currentPage,
     navigateTo,
     isMobileMenuOpen,
     toggleMobileMenu,
     toggleSearch,
-    notifications,
+    favorites,
   } = useStore();
 
   useEffect(() => {
@@ -80,16 +44,15 @@ export function Navbar() {
 
   const isActive = (slug: string) =>
     currentPage === slug ||
-    (slug !== 'home' && slug !== 'search' && slug !== 'favorites' && currentPage === 'category' && useStore.getState().selectedCategory === slug);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+    (slug !== 'home' && slug !== 'search' && slug !== 'favorites' && slug !== 'continue-watching' &&
+      currentPage === 'category' && useStore.getState().selectedCategory === slug);
 
   const handleMobileNav = (page: SitePage) => {
     navigateTo(page);
     toggleMobileMenu();
   };
 
-  const handleCategoryTap = (slug: CategorySlug) => {
+  const handleCategoryTap = (slug: SeriesCategorySlug) => {
     useStore.getState().selectCategory(slug);
     navigateTo('category');
     toggleMobileMenu();
@@ -114,7 +77,7 @@ export function Navbar() {
               className="flex items-center gap-2.5 cursor-pointer group"
             >
               <div className="relative w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center transition-all duration-500 group-hover:shadow-[var(--shadow-glow)] group-hover:scale-105">
-                <Sparkles className="h-5 w-5 text-white relative z-10" />
+                <Tv className="h-5 w-5 text-white relative z-10" />
                 <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-0 group-hover:opacity-60 blur-lg transition-opacity duration-500" />
               </div>
               <span className="text-xl font-heading font-bold text-gradient">
@@ -134,7 +97,7 @@ export function Navbar() {
                         ? toggleSearch()
                         : link.slug === 'favorites'
                           ? navigateTo('favorites')
-                          : navigateTo('category')
+                          : handleCategoryTap(link.slug as SeriesCategorySlug)
                   }
                   className={cn(
                     'relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer group',
@@ -174,39 +137,19 @@ export function Navbar() {
                 aria-label="المفضلة"
               >
                 <Heart className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
-              </button>
-
-              <button
-                onClick={() => navigateTo('notifications')}
-                className="w-9 h-9 rounded-full flex items-center justify-center glass-subtle transition-all duration-300 cursor-pointer hover:shadow-[var(--shadow-glow)] hover:scale-105 relative group"
-                aria-label="الإشعارات"
-              >
-                <Bell className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
-                {unreadCount > 0 && (
+                {favorites.length > 0 && (
                   <span className="absolute -top-0.5 -left-0.5 w-4 h-4 bg-gradient-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                    {favorites.length > 9 ? '9+' : favorites.length}
                   </span>
                 )}
               </button>
 
               <button
-                onClick={() => setCartOpen(true)}
-                className="w-9 h-9 rounded-full flex items-center justify-center glass-subtle transition-all duration-300 cursor-pointer hover:shadow-[var(--shadow-glow)] hover:scale-105 relative group"
-                aria-label="سلة التسوق"
-              >
-                <ShoppingBag className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
-              </button>
-
-              <div className="hidden md:block">
-                <LanguageSwitcher />
-              </div>
-
-              <button
-                onClick={() => navigateTo('login')}
+                onClick={() => navigateTo('continue-watching')}
                 className="hidden sm:flex w-9 h-9 rounded-full items-center justify-center glass-subtle transition-all duration-300 cursor-pointer hover:shadow-[var(--shadow-glow)] hover:scale-105 group"
-                aria-label="حسابي"
+                aria-label="تابع المشاهدة"
               >
-                <User className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
+                <Clock className="h-[18px] w-[18px] text-text-subtle transition-colors duration-300 group-hover:text-primary" />
               </button>
 
               <ThemeToggle />
@@ -227,7 +170,7 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* ═══ Mobile Menu Overlay — Organized & Compact ═══ */}
+      {/* ═══ Mobile Menu Overlay ═══ */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -250,7 +193,7 @@ export function Navbar() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-white" />
+                      <Tv className="h-4 w-4 text-white" />
                     </div>
                     <span className="text-lg font-heading font-bold text-gradient">
                       {SITE_NAME}
@@ -266,21 +209,21 @@ export function Navbar() {
 
                 {/* ─── Scrollable Content ─── */}
                 <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 space-y-4">
-                  {/* ── الأقسام (Category Chips Grid) ── */}
+                  {/* ── الأقسام ── */}
                   <div>
                     <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
                       الأقسام
                     </h4>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {FOOTER_LINKS.categories.slice(0, 7).map((cat, index) => {
-                        const Icon = CATEGORY_ICONS[cat.slug];
+                      {CATEGORIES.map((cat) => {
+                        const Icon = CATEGORY_ICONS[cat.slug] || Tv;
                         return (
                           <motion.button
                             key={cat.slug}
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.03 }}
-                            onClick={() => handleCategoryTap(cat.slug as CategorySlug)}
+                            transition={{ delay: 0.02 * CATEGORIES.indexOf(cat) }}
+                            onClick={() => handleCategoryTap(cat.slug)}
                             className={cn(
                               'flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] font-medium transition-all duration-200 cursor-pointer',
                               isActive(cat.slug)
@@ -288,25 +231,28 @@ export function Navbar() {
                                 : 'glass-subtle text-text-main hover:text-primary hover:bg-primary/5'
                             )}
                           >
-                            {Icon && <Icon className="h-3.5 w-3.5 flex-shrink-0" />}
-                            <span className="truncate">{cat.label}</span>
+                            <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="truncate">{cat.name}</span>
                           </motion.button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* ── روابط مفيدة ── */}
+                  {/* ── صفحات ── */}
                   <div>
                     <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
-                      روابط مفيدة
+                      المزيد
                     </h4>
                     <div className="space-y-0.5">
-                      {USEFUL_LINKS.map((link, i) => {
+                      {[
+                        { label: 'المفضلة', page: 'favorites' as SitePage, icon: Heart },
+                        { label: 'تابع المشاهدة', page: 'continue-watching' as SitePage, icon: Clock },
+                      ].map((link, i) => {
                         const Icon = link.icon;
                         return (
                           <motion.button
-                            key={link.label}
+                            key={link.page}
                             initial={{ opacity: 0, x: 12 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.15 + i * 0.03 }}
@@ -323,65 +269,10 @@ export function Navbar() {
                       })}
                     </div>
                   </div>
-
-                  {/* ── المزيد ── */}
-                  <div>
-                    <h4 className="text-[11px] font-bold text-text-main uppercase tracking-wider mb-2 px-1">
-                      المزيد
-                    </h4>
-                    <div className="space-y-0.5">
-                      {MORE_MENU_ITEMS.map((item, i) => {
-                        const Icon = item.icon;
-                        return (
-                          <motion.button
-                            key={item.page}
-                            initial={{ opacity: 0, x: 12 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 + i * 0.03 }}
-                            onClick={() => handleMobileNav(item.page)}
-                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-main hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group font-medium"
-                          >
-                            <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                              <Icon className="h-3 w-3" />
-                            </div>
-                            {item.label}
-                            {item.page === 'notifications' && unreadCount > 0 && (
-                              <span className="mr-auto bg-gradient-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                              </span>
-                            )}
-                            {item.page !== 'notifications' && (
-                              <ChevronLeft className="h-3 w-3 mr-auto opacity-30" />
-                            )}
-                          </motion.button>
-                        );
-                      })}
-                      {/* Language */}
-                      <motion.button
-                        initial={{ opacity: 0, x: 12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + MORE_MENU_ITEMS.length * 0.03 }}
-                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs text-text-main hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full cursor-pointer group font-medium"
-                      >
-                        <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                          <Globe className="h-3 w-3" />
-                        </div>
-                        اللغة العربية
-                        <ChevronLeft className="h-3 w-3 mr-auto opacity-30" />
-                      </motion.button>
-                    </div>
-                  </div>
                 </div>
 
-                {/* ─── Bottom: Login + Theme ─── */}
+                {/* ─── Bottom: Theme ─── */}
                 <div className="border-t border-border/30 px-4 py-3 flex items-center gap-2">
-                  <button
-                    onClick={() => handleMobileNav('login')}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium glass-subtle text-text-main hover:text-primary hover:bg-primary/5 transition-all cursor-pointer"
-                  >
-                    <User className="h-3.5 w-3.5" />
-                    تسجيل الدخول
-                  </button>
                   <ThemeToggle />
                 </div>
               </div>
@@ -396,17 +287,25 @@ export function Navbar() {
           {[
             { page: 'home' as SitePage, Icon: Home, label: 'الرئيسية' },
             { page: 'search' as SitePage, Icon: Search, label: 'بحث', action: toggleSearch },
-            { page: 'videos' as SitePage, Icon: Video, label: 'فيديوهات' },
-            { page: 'login' as SitePage, Icon: User, label: 'حسابي' },
+            { page: 'category' as SitePage, Icon: MonitorPlay, label: 'مسلسلات' },
+            { page: 'favorites' as SitePage, Icon: Heart, label: 'المفضلة' },
           ].map((tab) => {
             const isActiveTab = tab.page === 'search'
               ? false
-              : currentPage === tab.page || (tab.page === 'login' && (currentPage === 'profile' || currentPage === 'register' || currentPage === 'login'));
+              : currentPage === tab.page;
 
             return (
               <button
                 key={tab.page}
-                onClick={() => tab.action ? tab.action() : navigateTo(tab.page)}
+                onClick={() => {
+                  if (tab.action) {
+                    tab.action();
+                  } else if (tab.page === 'category') {
+                    navigateTo('category');
+                  } else {
+                    navigateTo(tab.page);
+                  }
+                }}
                 className="relative flex flex-col items-center justify-center gap-0.5 w-16 h-12 rounded-2xl transition-all duration-300 cursor-pointer"
               >
                 {isActiveTab && (
@@ -435,9 +334,6 @@ export function Navbar() {
           })}
         </div>
       </nav>
-
-      <VoiceSearch />
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }
